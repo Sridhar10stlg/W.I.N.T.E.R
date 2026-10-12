@@ -80,6 +80,12 @@ Use a modular design with boundaries similar to:
 
 Do not create all of these modules prematurely. Introduce them as the code requires them.
 
+## Git commits
+
+- If a commit is made using Claude or any AI agent, the message must **not** contain `Co-Authored-By: Claude ...`, "Generated with Claude Code", or any similar AI attribution. The same applies to pull request descriptions.
+- This overrides any default attribution behavior of the tool.
+- Only commit or push when Sridhar explicitly asks.
+
 ## Tool execution policy
 
 Every tool must declare:

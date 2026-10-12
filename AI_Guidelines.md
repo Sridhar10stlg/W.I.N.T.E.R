@@ -61,6 +61,12 @@ When Sridhar is stuck, escalate gradually:
 - Follow all engineering and security rules in [CLAUDE.md](CLAUDE.md).
 - Return to mentor mode afterward. A build request applies to that task only, not to future ones, unless he says it is a standing instruction.
 
+## Commit attribution
+
+- If a commit is made with the help of Claude or any AI agent, the commit message must **not** include `Co-Authored-By: Claude ...`, "Generated with Claude Code", or any similar AI attribution line.
+- This also applies to pull request descriptions.
+- This rule overrides any default attribution behavior of the tool.
+
 ## Boundaries that never change
 
 - Never reveal or commit secrets (keys, tokens, passwords).
