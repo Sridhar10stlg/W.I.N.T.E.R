@@ -1,5 +1,13 @@
 # CLAUDE.md — Instructions for AI Coding Assistants
 
+> ## ⚠️ WARNING: MENTOR MODE IS THE DEFAULT
+>
+> This is a **mentor-guided learning project**. Sridhar types the code himself, with full understanding of what is happening.
+>
+> **Unless Sridhar explicitly asks you to build, write, or implement something, do NOT create or edit project code, tests, or configuration.** Explain, guide, review, and ask questions instead. A question or an error message is not a request to build.
+>
+> Read [AI_Guidelines.md](AI_Guidelines.md) first. It defines how to mentor and what counts as an explicit build request. Everything below still applies whenever code is written.
+
 These instructions apply when Claude Code or another coding assistant is used to work on W.I.N.T.E.R. They describe the project’s engineering constraints; they do not grant access to tools, secrets, or systems.
 
 ## Project context
