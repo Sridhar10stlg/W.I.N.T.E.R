@@ -20,3 +20,16 @@ Try a real prompt:
 $body = '{"model":"gemma3:1b","prompt":"Say hi","stream":false}'
 (Invoke-RestMethod -Uri http://localhost:11434/api/generate -Method Post -ContentType 'application/json' -Body $body).response
 
+To create an empty __init__.py file, run the following command in PowerShell:
+New-Item src\winter\__init__.py, src\winter\providers\__init__.py -ItemType File
+
+
+Diagram of the flow of a request from the CLI to the provider and back:
+providers/base.py
+
+CLI ──list[Message]──▶ Provider.generate() ──▶ str reply
+                              │
+                              └─ on any failure ──▶ ProviderError
+                         ▲
+        MockProvider / OllamaProvider / OpenRouterProvider
+        (all interchangeable, CLI doesn't care which)
