@@ -344,3 +344,103 @@ W.I.N.T.E.R should become a dependable assistant that:
 - Is testable, maintainable, and affordable to operate.
 
 **North star:** build a trustworthy, useful assistant one verified capability at a time.
+
+## 13. 12-month schedule (deadline: 2027-10-19)
+
+**Start:** 2026-10-19. **Target:** a usable v1.0 text and voice assistant with tools, permissions, and memory by 2027-10-19.
+
+**Working method:** Claude provides code block by block, ready to paste; Sridhar reads, runs, and understands each block. Security and testing rules in [CLAUDE.md](CLAUDE.md) still apply.
+
+**Scope for this year:** Phases 0-8 from section 5. Phase 9 (advanced interfaces, robotics) is out of scope. Phase 7 (vision/devices) is kept minimal and optional.
+
+**How to read this:** each month has one goal and four weekly goals. The two or three days left at the end of each month are buffer. If a month slips, cut the lowest-priority item rather than extending the deadline. Mark items `[x]` as they are done, and record the laptop and lessons in [docs/PROGRESS.md](docs/PROGRESS.md).
+
+### Month 1 (Oct 19 - Nov 17): Foundation and first answers (Phases 0-1)
+**Goal:** a CLI that sends a prompt to a model and prints the reply, with tests.
+- [ ] **Week 1:** Python project skeleton, `pyproject.toml`, `.env.example`, validated config loader.
+- [ ] **Week 2:** CLI loop, provider interface, mock provider.
+- [ ] **Week 3:** first real LLM adapter (Claude API) with clear errors for missing key, network failure, rate limit.
+- [ ] **Week 4:** structured logging with secret redaction, unit tests for config and provider failures.
+
+### Month 2 (Nov 18 - Dec 17): Sessions and tool foundations (Phases 1-2)
+**Goal:** multi-turn conversations and a tool registry.
+- [ ] **Week 1:** conversation/session handling, system prompt.
+- [ ] **Week 2:** streaming output and cost/latency measurements.
+- [ ] **Week 3:** tool registry with names, descriptions, typed input schemas, validation.
+- [ ] **Week 4:** first low-risk tools (calculator, date/time) with valid, invalid, and unauthorized call tests.
+
+### Month 3 (Dec 18 - Jan 16): Permissions and controlled execution (Phase 2)
+**Goal:** the model can propose tool calls, and the application authorizes them.
+- [ ] **Week 1:** permission levels 0-4 as code, default-deny for unknown tools.
+- [ ] **Week 2:** confirmation flow for side-effecting actions.
+- [ ] **Week 3:** audit log (tool, outcome, timestamp; no sensitive payloads).
+- [ ] **Week 4:** end-to-end tool-calling loop with the LLM, plus security tests (prompt-injection and invalid-argument cases).
+
+### Month 4 (Jan 17 - Feb 15): Voice (Phase 3)
+**Goal:** push-to-talk voice request and spoken reply.
+- [ ] **Week 1:** audio device configuration and microphone capture, with a visible "recording" indicator.
+- [ ] **Week 2:** speech-to-text behind an interface.
+- [ ] **Week 3:** text-to-speech behind an interface.
+- [ ] **Week 4:** state handling (listening, thinking, speaking, error) and cancel/interrupt.
+
+### Month 5 (Feb 16 - Mar 17): Memory (Phase 4)
+**Goal:** persistent memory the user controls.
+- [ ] **Week 1:** SQLite storage and schema, short-term vs persistent memory.
+- [ ] **Week 2:** rules for what may be saved, secret exclusion.
+- [ ] **Week 3:** view, edit, export, and delete commands.
+- [ ] **Week 4:** memory injected into context, with tests.
+
+### Month 6 (Mar 18 - Apr 16): Checkpoint and hardening
+**Goal:** tag **v0.1** and review pace against the deadline.
+- [ ] **Week 1:** cleanup and refactor of Months 1-5, docs update (architecture, security).
+- [ ] **Week 2:** continuous integration (tests on push), dependency pinning.
+- [ ] **Week 3:** test on all available laptops (4GB Dell Inspiron, Dynabook), fix portability issues.
+- [ ] **Week 4:** half-year review: update this plan, drop or defer anything that no longer fits.
+
+### Month 7 (Apr 17 - May 16): Web search (Phase 5)
+**Goal:** safe web access.
+- [ ] **Week 1:** search tool behind the tool interface, domain allowlist.
+- [ ] **Week 2:** treat fetched content as untrusted data, with prompt-injection tests.
+- [ ] **Week 3:** source citations in answers.
+- [ ] **Week 4:** per-integration disable switch.
+
+### Month 8 (May 17 - Jun 15): One productivity integration (Phase 5)
+**Goal:** one useful, read-only integration (e.g., calendar).
+- [ ] **Week 1:** choose the integration, scope credentials with least privilege.
+- [ ] **Week 2:** OAuth/API setup outside source control.
+- [ ] **Week 3:** read-only tool with tests.
+- [ ] **Week 4:** confirmation-gated write action (optional), failure visibility.
+
+### Month 9 (Jun 16 - Jul 15): Local models (Phase 6)
+**Goal:** measured decision on local vs hosted models.
+- [ ] **Week 1:** local runtime setup (e.g., Ollama) on the highest-spec laptop.
+- [ ] **Week 2:** local provider adapter behind the same interface.
+- [ ] **Week 3:** benchmark latency, memory use, and quality on representative tasks.
+- [ ] **Week 4:** write up which tasks use local vs API.
+
+### Month 10 (Jul 16 - Aug 14): Vision and devices, minimal (Phase 7, optional)
+**Goal:** one consent-based capability, or skip and use the time to strengthen earlier work.
+- [ ] **Week 1:** decide go/no-go for vision or Home Assistant.
+- [ ] **Week 2:** screenshot or image understanding with explicit user action.
+- [ ] **Week 3:** separate permission profile for the integration.
+- [ ] **Week 4:** emergency disable path and tests.
+
+### Month 11 (Aug 15 - Sep 13): Reliability and security (Phase 8)
+**Goal:** a service you can trust and stop easily.
+- [ ] **Week 1:** health checks, config validation at startup.
+- [ ] **Week 2:** backups and a tested restore for memory data.
+- [ ] **Week 3:** dependency and security review.
+- [ ] **Week 4:** update/rollback procedure and global stop switch.
+
+### Month 12 (Sep 14 - Oct 19): Polish and v1.0
+**Goal:** tag **v1.0** by 2027-10-19.
+- [ ] **Week 1:** fix known bugs, tighten error messages.
+- [ ] **Week 2:** finish documentation (README, setup on a clean clone, security notes).
+- [ ] **Week 3:** full test run and manual walkthrough on every laptop.
+- [ ] **Week 4:** tag v1.0, write a retrospective, plan next-year ideas (Phase 9 candidates).
+
+### Risks to the deadline
+- **Scope creep:** defer anything not on this schedule to the retrospective.
+- **Time:** if a week slips, use the buffer days first, then cut optional items (Month 8 write action, Month 10 entirely).
+- **Hardware:** the 4GB laptop cannot run local models, so Month 9 depends on the Dynabook or a future laptop.
+- **Cost:** track API spend monthly and set a usage limit.
