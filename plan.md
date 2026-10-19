@@ -359,7 +359,7 @@ W.I.N.T.E.R should become a dependable assistant that:
 **Goal:** a CLI that sends a prompt to a model and prints the reply, with tests.
 - [ ] **Week 1:** Python project skeleton, `pyproject.toml`, `.env.example`, validated config loader.
 - [ ] **Week 2:** CLI loop, provider interface, mock provider.
-- [ ] **Week 3:** first real LLM adapter (Claude API) with clear errors for missing key, network failure, rate limit.
+- [ ] **Week 3:** first real LLM adapter (Ollama, free and local), with clear errors for Ollama not running, model not found, timeouts. OpenRouter adapter follows once Ollama works (clear errors for missing key, network failure, rate limit).
 - [ ] **Week 4:** structured logging with secret redaction, unit tests for config and provider failures.
 
 ### Month 2 (Nov 18 - Dec 17): Sessions and tool foundations (Phases 1-2)
