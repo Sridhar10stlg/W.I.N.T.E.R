@@ -221,3 +221,6 @@ __marimo__/
 
 # Claude
 .claude/settings.local.json
+
+# Keep the build history docs. Needed because "build/" above also matches docs/Build on Windows.
+!docs/Build/

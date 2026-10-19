@@ -1,31 +1,33 @@
-# W.I.N.T.E.R — Progress Journal
+# W.I.N.T.E.R — Progress Index
 
-Handoff notes between sessions and laptops. Newest entry first. Sridhar types the code; Claude mentors (see [AI_Guidelines.md](../AI_Guidelines.md)).
+Master index for the build history. Each block of work has its own detailed page in [docs/Build/](Build/). This file only lists them and records where we are.
 
----
+- **Deadline:** 2027-10-19 (12 months from 2026-10-19). Schedule: [plan.md](../plan.md), section 13.
+- **Working method:** AI supplies paste-ready code block by block; Sridhar reads, pastes, runs, and learns. Rules: [AI_Guidelines.md](../AI_Guidelines.md), [CLAUDE.md](../CLAUDE.md).
+- **Naming:** `yyyymmdd_block{n}.md` (the date the block was done, e.g. `20261019_block1.md`). After each block: add the page, then add a row below.
 
-## 2026-10-12 — Laptop:
-- Laptop 1(My personal low spec laptop): Dell Inspiron - 4GB RAM, 256GB SSD, 1TB HDD, Ryzen 3 processor
-- Laptop 2(My organization high spec laptop): Dynabook - 32GB RAM, 900GB SSD, Intel I7 255H, 128mb graphics card
-- Laptop 3(My new personal laptop high-end): Going to buy
-- Laptop 4(My new personal macbook): will buy in 4 years time
+## Current position
 
-### Last session
-- Set up mentor-mode rules in `CLAUDE.md` and `AI_Guidelines.md`, including a no-AI-attribution rule for commits and PRs.
-- Added a Claude section to `.gitignore` that ignores only `.claude/settings.local.json`, so the rest of `.claude/` can be shared across laptops.
-- Created `.gitattributes` with `* text=auto` to normalize line endings across Windows and Mac.
-- Reviewed the commands for merging `main` into `dev` and `master`.
+**Next up:** Month 1, Week 2, Block 2 (provider interface, mock provider, CLI loop). Code was supplied; verification not yet recorded.
 
-### What I learned
-- Syncing the raw `~/.claude` folder between laptops is fragile. Git plus a progress journal is the sync layer.
-- `core.autocrlf` is per machine; `.gitattributes` travels with the repo.
-- `git checkout <receiver>` then `git merge <source>` merges one branch into another.
+## Build index
 
-### Next step
-- Commit the `.gitignore`, `.gitattributes` and docs changes, then check `git log -1` for any AI attribution line.
-- Decide whether `main` or `master` is the primary branch.
-- Start the first small Python module, in mentor mode (see `plan.md`).
+| Month | Week | Block | Topic | Status | Page |
+|---|---|---|---|---|---|
+| 0 | n/a | Setup | Repository rules, `.gitignore`, `.gitattributes`, branches, plan | Done | [20261012_setup.md](Build/20261012_setup.md) |
+| 1 | 1 | 1 | Project skeleton and validated configuration | Done | [20261019_block1.md](Build/20261019_block1.md) |
+| 1 | 2 | 2 | Provider interface, mock provider, CLI loop | In progress | pending |
+| 1 | 3 | 3 | Ollama adapter with clear errors | Planned | pending |
+| 1 | 4 | 4 | Logging with secret redaction, failure tests | Planned | pending |
 
-### Open questions
-- What does git do with a file it decides is binary under `text=auto`?
-- Which of `main` and `master` should be primary, and do I need `dev`?
+## Laptops
+
+| # | Laptop | Specs | Notes |
+|---|---|---|---|
+| 1 | Dell Inspiron (personal, low spec) | 4GB RAM, 256GB SSD, 1TB HDD, Ryzen 3 | Use only `gemma3:1b`; install Ollama natively on Windows, not WSL |
+| 2 | Dynabook (organization, high spec) | 32GB RAM, 900GB SSD, Intel i7 255H, 128MB graphics | Ollama runs in WSL; `gemma3:1b` and `gemma3:4b` installed |
+| 3 | New personal high-end laptop | To be bought | Local-model benchmarks (Month 9) |
+| 4 | New personal MacBook | In about 4 years | Keep code portable (`pathlib`, no hardcoded paths) |
+
+## Open questions
+- Which of `main` and `dev` do I use day to day? (`master` is deleted.)
