@@ -1,65 +1,53 @@
-# AI_Guidelines.md — Mentor Mode for W.I.N.T.E.R
+# AI_Guidelines.md — Working Method for W.I.N.T.E.R
 
 > ## ⚠️ WARNING TO ALL AI AGENTS
 >
-> **This is a mentor-guided learning repository, not a build-it-for-me repository.**
+> **Sridhar pastes and learns; the AI does not edit project files on its own.**
 >
-> Unless **Sridhar** explicitly asks you to build, write, or implement something, **do not create or edit project code, tests, or configuration.** Sridhar types the code himself so that he fully understands what is happening.
+> Give code **block by block, ready to paste, in the chat**, with a short explanation of each block. Sridhar reads, pastes, runs, and learns from it.
 >
-> "Explicitly" means a clear instruction such as *"write this for me"*, *"build X"*, or *"implement Y"*. Questions, curiosity, error messages, or "how do I…" are **not** requests to build.
+> **Do not create, edit, or delete project files, run repo-changing commands, commit, or push unless Sridhar explicitly asks** (e.g. "create the file", "update it", "commit this"). Questions, error messages, or "how do I…" are not requests to edit files.
 
 ## Why this project works this way
 
-W.I.N.T.E.R is a long-term, solo-developed project. The goal is as much for Sridhar to **learn** as to ship. Finished code that he did not write and does not understand defeats the purpose.
+W.I.N.T.E.R is a solo-developed project with a **1-year deadline (2027-10-19)**. Typing every line by hand is too slow for that pace, so the AI supplies the code. Sridhar still has to understand what he pastes: every block must be explained well enough to learn from.
 
-## Default role: mentor, not builder
-
-Unless told otherwise, you are a **mentor, reviewer, and explainer**.
+## Default role: code supplier and explainer
 
 ### You SHOULD
-- Explain concepts, trade-offs, and *why* before *how*.
-- Break work into small steps Sridhar can type himself.
-- Point to the relevant files, functions, docs, or concepts to study.
-- Show **short illustrative snippets** (a few lines) to explain an idea, clearly labelled as examples and not pasted into project files.
-- Ask guiding questions ("What do you think this function should return if the input is empty?").
-- Review code Sridhar has written: point out bugs, risks, and improvements, and explain them.
-- Help debug by explaining what an error means and where to look, before giving the fix.
-- Suggest tests Sridhar could write, and explain what each should verify.
-- Check understanding: ask him to explain the code back in his own words when appropriate.
-- Keep the engineering and security rules in [CLAUDE.md](CLAUDE.md).
+- Deliver code in **small, self-contained, paste-ready blocks**, one file or one logical piece at a time.
+- Say exactly **which file** each block goes in and whether it is new or a change.
+- Add a short explanation after each block: what it does and why it was designed this way.
+- Skip beginner-level syntax tutorials, but explain design choices, trade-offs, and anything non-obvious.
+- Include the command to run and the expected output so Sridhar can verify each block.
+- Include tests for new behavior and important failure cases.
+- Follow the engineering and security rules in [CLAUDE.md](CLAUDE.md).
+- Follow the schedule in [plan.md](plan.md) (section 13) and flag when work threatens the deadline.
+- Review code Sridhar pastes or changes, and explain issues.
+- Help debug by explaining the error and giving the fix.
 
 ### You SHOULD NOT (without explicit instruction)
-- Create, edit, or delete source files, tests, or config in the project.
-- Scaffold modules, folders, or boilerplate.
-- Paste complete, ready-to-copy implementations of features.
+- Create, edit, or delete files in the project.
 - Run commands that change the repo (installs, commits, pushes, file generation).
-- "Helpfully" fix a bug by editing the file yourself.
+- Dump a whole feature in one giant block.
+- Expand scope beyond the current block or the plan.
 - Refactor or reorganise code unprompted.
 
-## How a mentoring session should flow
+## How a session should flow
 
-1. **Goal** — Confirm what Sridhar wants to build or understand next.
-2. **Concept** — Explain the idea in plain language.
-3. **Plan** — Outline small steps (a few lines of code each).
-4. **Sridhar types** — He writes the code.
-5. **Review** — You read what he wrote, explain issues, and suggest improvements.
-6. **Understand** — Confirm he can explain what the code does and why.
-7. **Test** — Guide him to write and run tests himself.
+1. **Goal** — Confirm the next item from [plan.md](plan.md).
+2. **Block** — Give one paste-ready block with its file name.
+3. **Explain** — Briefly say what it does and why.
+4. **Run** — Give the command and expected output.
+5. **Test** — Give the matching test block.
+6. **Journal** — Remind Sridhar to log progress in [docs/PROGRESS.md](docs/PROGRESS.md), including the laptop used.
 
-## Hints before answers
+## Project decisions
 
-When Sridhar is stuck, escalate gradually:
-1. A guiding question.
-2. A hint pointing to the concept or the line.
-3. A small example of the pattern, using different names or context.
-4. The direct answer, explained, only if he is still stuck or asks for it.
-
-## When Sridhar does explicitly ask you to build
-
-- Do the requested piece only; do not expand scope.
-- Explain what you wrote and why, line by line where useful.
-- Follow all engineering and security rules in [CLAUDE.md](CLAUDE.md).
-- Return to mentor mode afterward. A build request applies to that task only, not to future ones, unless he says it is a standing instruction.
+- **Model access:** OpenRouter API behind a provider interface, plus a local model through Ollama for free development. Providers stay swappable.
+- **Python:** 3.13.
+- **Dependencies:** `venv` with `requirements.txt` (not `uv`).
+- **Laptops:** up to four, including a 4GB machine. Keep code portable (`pathlib`, no hardcoded paths) and lightweight.
 
 ## Commit attribution
 

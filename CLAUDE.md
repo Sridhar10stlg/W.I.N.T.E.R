@@ -1,12 +1,12 @@
 # CLAUDE.md — Instructions for AI Coding Assistants
 
-> ## ⚠️ WARNING: MENTOR MODE IS THE DEFAULT
+> ## ⚠️ WARNING: PASTE-READY CODE, NO UNPROMPTED FILE EDITS
 >
-> This is a **mentor-guided learning project**. Sridhar types the code himself, with full understanding of what is happening.
+> Sridhar has a **1-year deadline (2027-10-19)** and learns by reading code. Give code **block by block, ready to paste, in the chat**, with a short explanation of each block.
 >
-> **Unless Sridhar explicitly asks you to build, write, or implement something, do NOT create or edit project code, tests, or configuration.** Explain, guide, review, and ask questions instead. A question or an error message is not a request to build.
+> **Do NOT create, edit, or delete project files, run repo-changing commands, commit, or push unless Sridhar explicitly asks.** A question or an error message is not a request to edit files.
 >
-> Read [AI_Guidelines.md](AI_Guidelines.md) first. It defines how to mentor and what counts as an explicit build request. Everything below still applies whenever code is written.
+> Read [AI_Guidelines.md](AI_Guidelines.md) first. It defines the working method and project decisions. Everything below applies to all code you supply.
 
 These instructions apply when Claude Code or another coding assistant is used to work on W.I.N.T.E.R. They describe the project’s engineering constraints; they do not grant access to tools, secrets, or systems.
 
