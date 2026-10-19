@@ -1,0 +1,22 @@
+To create and activate venv
+>> python -m venv .venv
+>> .\.venv\Scripts\activate
+
+To install dependencies
+>> pip install -r .\requirements.txt
+
+To install the package in editable mode
+>> pip install -e .
+
+In the WSL terminal:
+ollama pull llama3.2:1b
+ollama pull llama3.2:3b
+ollama list
+
+In Windows PowerShell:
+curl.exe http://localhost:11434/api/tags
+
+Try a real prompt:
+$body = '{"model":"gemma3:1b","prompt":"Say hi","stream":false}'
+(Invoke-RestMethod -Uri http://localhost:11434/api/generate -Method Post -ContentType 'application/json' -Body $body).response
+
