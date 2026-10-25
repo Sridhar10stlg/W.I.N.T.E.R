@@ -1,6 +1,6 @@
 # 0007: CLI structure: factory function, injected I/O, rollback on failure, exit codes
 
-- **Status:** Accepted (retroactive)
+- **Status:** Accepted (retroactive). **Exit-code part partially superseded by [0009](0009-provider-error-hierarchy.md):** a provider setup problem (including "not implemented") now exits 2, not 1. The rest stands.
 - **Date:** 2026-10-26 (Block 2)
 - **Recorded:** 2026-10-26
 
