@@ -32,7 +32,14 @@ class Provider(ABC):
     """The narrow interface every model backend must follow."""
 
     # A short label shown in the CLI banner, e.g. "mock" or "ollama".
-    name: str
+    # Declared as an abstract property so a subclass that forgets to define `name`
+    # cannot even be created (TypeError at construction, not AttributeError mid-chat).
+    # A subclass satisfies it with a plain class attribute: name = "mock".
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Short label for this provider."""
+
 
     # Because this is abstract, Python refuses to create a Provider that forgets to implement generate(). 
     # The mistake shows up immediately, not mid-conversation.

@@ -11,7 +11,8 @@ class MockProvider(Provider):
         error: ProviderError | None = None,
     ) -> None:
         # replies: canned answers handed out one by one. None means "just echo the user".
-        self._replies = list(replies) if replies else None
+        # An EMPTY list is different from None: it means "canned mode, with nothing left".
+        self._replies = list(replies) if replies is not None else None
 
         # error: if set, every call fails with this error. Used to test failure handling.
         self._error = error
@@ -30,8 +31,11 @@ class MockProvider(Provider):
         if self._error is not None:
             raise self._error
         
-        # If canned replies were given, hand out the next one.
-        if self._replies:
+        # Canned mode: hand out the next reply, or fail loudly if the test asked for
+        # more replies than it supplied (a silent echo here would hide a test bug).
+        if self._replies is not None:
+            if not self._replies:
+                raise ProviderError("MockProvider has no canned replies left.")
             return self._replies.pop(0)                            
         
         # Default behavior: find the most recent user message and echo it back.
