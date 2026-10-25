@@ -1,11 +1,27 @@
+# [project] holds the package's identity.
 [project]
+# The package name (what pip calls it).
 name = "winter"
+# The current version number.
 version = "0.1.0"
+# The oldest Python version allowed (the Block 1 decision).
 requires-python = ">=3.11"
 
+# NEW: [project.scripts] creates command-line commands when the package is installed.
+[project.scripts]
+# "winter" is the command you type. "winter.cli:main" means: in the package winter,
+# in the file cli.py, call the function main(). This is the same main() that
+# python -m winter runs.
+winter = "winter.cli:main"
+
+# Tells the build tool where the importable code lives.
 [tool.setuptools.packages.find]
+# Look for packages inside src/.
 where = ["src"]
 
+# Settings for pytest.
 [tool.pytest.ini_options]
+# Where the tests live.
 testpaths = ["tests"]
+# Lets pytest import winter from src/ without installing.
 pythonpath = ["src"]
