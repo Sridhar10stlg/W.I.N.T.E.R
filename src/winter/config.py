@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     # Which backend answers questions. Anything other than these two is rejected.
     # alias="..." is the exact variable name in .env / the environment.
     # The first argument is the default used when the variable is not set.
-    provider: Literal["ollama", "openrouter"] = Field("ollama", alias="LOCAL_AI_PROVIDER")
+    provider: Literal["ollama", "openrouter", "mock"] = Field("ollama", alias="LOCAL_AI_PROVIDER")
     
     # Small model for low-RAM laptops and the bigger one for high spec laptops for better performance.
     model_low: str = Field("gemma3:1b", alias="LOCAL_AI_MODEL_LOW")

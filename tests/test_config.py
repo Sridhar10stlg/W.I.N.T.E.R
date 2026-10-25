@@ -38,3 +38,8 @@ def test_unknown_provider_rejected():
     # A typo in the provider name must fail, not silently fall back.
     with pytest.raises(ValidationError):
         Settings(_env_file=None, LOCAL_AI_PROVIDER="nope")
+
+def test_mock_provider_is_allowed():
+    # "mock" lets the CLI run with no model installed.
+    s = Settings(_env_file=None, LOCAL_AI_PROVIDER="mock")
+    assert s.provider == "mock"
