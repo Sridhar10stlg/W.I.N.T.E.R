@@ -359,18 +359,25 @@ W.I.N.T.E.R should become a dependable assistant that:
 **Goal:** a CLI that sends a prompt to a model and prints the reply, with tests.
 - [x] **Week 1:** Python project skeleton, `pyproject.toml`, `.env.example`, validated config loader.
 - [x] **Week 2:** CLI loop, provider interface, mock provider.
-- [ ] **Week 3:** first real LLM adapter (Ollama, free and local), with clear errors for Ollama not running, model not found, timeouts. OpenRouter adapter follows once Ollama works (clear errors for missing key, network failure, rate limit).
+- [ ] **Week 2 follow-up (contract fixes before the adapter):** the design review ([docs/design/](docs/design/)) found the provider contract must change before the first real adapter, because every adapter, the mock, the CLI and the tests depend on it. One block per step, in this order:
+  - [ ] **2b-1:** `Reply` and `Usage` objects; `generate()` returns `Reply` ([ADR 0008](docs/design/decisions/0008-reply-object.md)); update the mock, `run_chat` and tests. Add a safe-terminal-output helper for reply text ([trust boundaries](docs/design/diagrams/trust-boundaries.md)).
+  - [ ] **2b-2:** error hierarchy: temporary, unavailable and setup errors ([ADR 0009](docs/design/decisions/0009-provider-error-hierarchy.md)); factory raises the setup type; `main()` exits 2 for setup problems; update the temporary "not implemented" test.
+  - [ ] **2b-3:** timeout and model-tier settings in `Settings` and `.env.example` (settles design open question 5: which model is used).
+  - [ ] **2b-4:** `RetryingProvider` wrapper with tests ([ADR 0010](docs/design/decisions/0010-timeouts-and-retries.md)).
+  - This uses about one to two days of the Month 1 buffer. If Month 1 slips because of it, move the OpenRouter adapter to Month 2 first (the lowest-priority Month 1 item); do not move the deadline.
+- [ ] **Week 3:** first real LLM adapter (Ollama, free and local), built on the `Reply` and error contracts above, with clear errors for Ollama not running, model not found, timeouts. Measure first-call load time and the real default context size (design open questions 12 and 14). OpenRouter adapter follows once Ollama works (clear errors for missing key, network failure, rate limit).
 - [ ] **Week 4:** structured logging with secret redaction, unit tests for config and provider failures.
 
 ### Month 2 (Nov 18 - Dec 17): Sessions and tool foundations (Phases 1-2)
 **Goal:** multi-turn conversations and a tool registry.
-- [ ] **Week 1:** conversation/session handling, system prompt.
+- [ ] **Week 1:** conversation/session handling, system prompt, and a history size limit so a long chat does not silently lose old messages (design open questions 6 and 12).
 - [ ] **Week 2:** streaming output and cost/latency measurements.
 - [ ] **Week 3:** tool registry with names, descriptions, typed input schemas, validation.
 - [ ] **Week 4:** first low-risk tools (calculator, date/time) with valid, invalid, and unauthorized call tests.
 
 ### Month 3 (Dec 18 - Jan 16): Permissions and controlled execution (Phase 2)
 **Goal:** the model can propose tool calls, and the application authorizes them.
+**Decide before starting:** which model proposes tool calls. Checked with `ollama show` on 2026-10-26: neither `gemma3:1b` nor `gemma3:4b` lists a `tools` capability. Choose another local model that does, or use OpenRouter for tool calls. If a model has no native tool calling, tools are refused (fail closed), not parsed out of its text (design open questions 7a and 8).
 - [ ] **Week 1:** permission levels 0-4 as code, default-deny for unknown tools.
 - [ ] **Week 2:** confirmation flow for side-effecting actions.
 - [ ] **Week 3:** audit log (tool, outcome, timestamp; no sensitive payloads).
@@ -395,7 +402,7 @@ W.I.N.T.E.R should become a dependable assistant that:
 - [ ] **Week 1:** cleanup and refactor of Months 1-5, docs update (architecture, security).
 - [ ] **Week 2:** continuous integration (tests on push), dependency pinning.
 - [ ] **Week 3:** test on all available laptops (4GB Dell Inspiron, Dynabook), fix portability issues.
-- [ ] **Week 4:** half-year review: update this plan, drop or defer anything that no longer fits.
+- [ ] **Week 4:** half-year review: update this plan, drop or defer anything that no longer fits. Run the small fixed evaluation prompt set against the current models to see whether the assistant improved (design open question 13; the first set is started in Month 2).
 
 ### Month 7 (Apr 17 - May 16): Web search (Phase 5)
 **Goal:** safe web access.
