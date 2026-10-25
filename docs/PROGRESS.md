@@ -8,7 +8,7 @@ Master index for the build history. Each block of work has its own detailed page
 
 ## Current position
 
-**Next up:** Month 1, Week 2, Block 2 (provider interface, mock provider, CLI loop). Code was supplied; verification not yet recorded.
+**Next up:** Month 1, Week 3, Block 3 (Ollama adapter with clear errors). Block 2 is done and verified (22 tests passed on the Dynabook). Native Windows Ollama is installed on the Dynabook with `gemma3:1b` pulled; `gemma3:4b` is not pulled yet.
 
 ## Build index
 
@@ -16,7 +16,7 @@ Master index for the build history. Each block of work has its own detailed page
 |---|---|---|---|---|---|
 | 0 | n/a | Setup | Repository rules, `.gitignore`, `.gitattributes`, branches, plan | Done | [20261012_setup.md](Build/20261012_setup.md) |
 | 1 | 1 | 1 | Project skeleton and validated configuration | Done | [20261019_block1.md](Build/20261019_block1.md) |
-| 1 | 2 | 2 | Provider interface, mock provider, CLI loop | In progress | pending |
+| 1 | 2 | 2 | Provider interface, mock provider, CLI loop | Done | [20261026_block2.md](Build/20261026_block2.md) |
 | 1 | 3 | 3 | Ollama adapter with clear errors | Planned | pending |
 | 1 | 4 | 4 | Logging with secret redaction, failure tests | Planned | pending |
 
@@ -25,9 +25,12 @@ Master index for the build history. Each block of work has its own detailed page
 | # | Laptop | Specs | Notes |
 |---|---|---|---|
 | 1 | Dell Inspiron (personal, low spec) | 4GB RAM, 256GB SSD, 1TB HDD, Ryzen 3 | Use only `gemma3:1b`; install Ollama natively on Windows, not WSL |
-| 2 | Dynabook (organization, high spec) | 32GB RAM, 900GB SSD, Intel i7 255H, 128MB graphics | Ollama runs in WSL; `gemma3:1b` and `gemma3:4b` installed |
+| 2 | Dynabook (organization, high spec) | 32GB RAM, 900GB SSD, Intel i7 255H, 128MB graphics | Ollama runs natively on Windows (per-user install, v0.40.11, no admin needed); `gemma3:1b` pulled, `gemma3:4b` still to pull. The old WSL Ubuntu Ollama has its own separate models; keep WSL stopped because both use port 11434 |
 | 3 | New personal high-end laptop | To be bought | Local-model benchmarks (Month 9) |
 | 4 | New personal MacBook | In about 4 years | Keep code portable (`pathlib`, no hardcoded paths) |
 
+## Decisions
+- **Branches:** `dev` is the day-to-day working branch. `main` is for releases only. (`master` is deleted.)
+
 ## Open questions
-- Which of `main` and `dev` do I use day to day? (`master` is deleted.)
+- None right now.
