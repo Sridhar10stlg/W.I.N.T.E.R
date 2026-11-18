@@ -5,7 +5,7 @@ import dataclasses
 import pytest
 
 # The pieces under test: the message type, the abstract interface, and the error type.
-from winter.providers.base import Message, Provider, ProviderError
+from winter.providers.base import Message, Provider, ProviderError, Reply, Usage
 
 # The fake model under test.
 from winter.providers.mock import MockProvider
@@ -26,9 +26,10 @@ def test_provider_without_name_cannot_be_created():
     # Define a throwaway provider that implements generate() but NOT name.
     class NoName(Provider):
         # generate() is implemented, so only the missing name should block creation.
-        def generate(self, messages: list[Message]) -> str:
+        def generate(self, messages: list[Message]) -> Reply:
             # Any reply will do; it is never called.
-            return "x"
+            return Reply(text="x")
+
 
     # Python refuses to create a class that still has an abstract member: TypeError.
     with pytest.raises(TypeError):
@@ -42,7 +43,7 @@ def test_mock_echoes_last_user_message():
     # A short conversation; the LAST user message is "second".
     msgs = [Message("user", "first"), Message("assistant", "ok"), Message("user", "second")]
     # The echo must use "second", not "first".
-    assert p.generate(msgs) == "[mock] you said: second"
+    assert p.generate(msgs).text == "[mock] you said: second"
 
 
 # Test 4: canned replies come out in order, and running out is an error (checks Block B).
@@ -52,9 +53,9 @@ def test_mock_canned_replies_come_in_order_then_error():
     # One user message is enough to ask with.
     msgs = [Message("user", "hi")]
     # First call gets the first reply...
-    assert p.generate(msgs) == "one"
+    assert p.generate(msgs).text == "one"
     # ...second call gets the second.
-    assert p.generate(msgs) == "two"
+    assert p.generate(msgs).text == "two"
     # A third call has nothing left: it must fail loudly, not quietly fall back to echo.
     with pytest.raises(ProviderError):
         p.generate(msgs)
@@ -90,3 +91,28 @@ def test_mock_records_a_snapshot_of_each_call():
     msgs.append(Message("assistant", "later"))
     # ...but the recorded call must still show ONE message: the list as it was then.
     assert len(p.calls[0]) == 1
+    
+# Test 8: a Reply needs only text; the optional fields default to "not reported".
+def test_reply_defaults():
+    r = Reply(text="hi")
+    # No stop reason or usage unless the provider supplies them.
+    assert r.stop_reason is None
+    assert r.usage is None
+    # With no stop reason, the reply is not considered cut off.
+    assert r.was_cut_off is False
+
+
+# Test 9: negative token counts are an adapter bug and must be rejected.
+def test_usage_rejects_negative_counts():
+    with pytest.raises(ValueError):
+        Usage(input_tokens=-1, output_tokens=0)
+
+
+# Test 10: the mock can hand out a full Reply untouched (used to test stop_reason and usage).
+def test_mock_can_return_a_full_reply():
+    # A reply that was cut off and reports token usage.
+    r = Reply(text="cut", stop_reason="length", usage=Usage(input_tokens=3, output_tokens=1))
+    p = MockProvider(replies=[r])
+    # "is" checks it is the very same object, not a copy or a re-wrapped string.
+    assert p.generate([Message("user", "hi")]) is r
+

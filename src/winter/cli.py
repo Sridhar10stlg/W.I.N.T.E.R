@@ -1,3 +1,6 @@
+# unicodedata tells us what KIND of character something is (letter, control code, ...).
+import unicodedata
+
 # sys gives us sys.stderr, the "error" output stream (separate from normal output).
 import sys
 
@@ -20,6 +23,27 @@ from winter.providers.factory import build_provider
 # The words that end the session when the user types them.
 # A set is used because "is this word in the group?" is a fast, simple check.
 EXIT_COMMANDS = {"/exit", "/quit"}
+
+# Bidirectional-text control characters. They make text DISPLAY in a different order
+# than it really is, so a reply could look harmless while saying something else.
+_BIDI_CONTROLS = set("\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069")
+
+
+def safe_for_terminal(text: str) -> str:
+    """Remove characters that could control the terminal instead of being shown.
+
+    Model output is untrusted (docs/design/diagrams/trust-boundaries.md). Control
+    characters such as ESC (start of colour/cursor codes) or a carriage return
+    (overwrites the line) could change what the terminal shows. Newlines and tabs are kept.
+    """
+    return "".join(
+        ch for ch in text
+        # Keep newline and tab: they are normal formatting.
+        if ch in "\n\t"
+        # "Cc" is Unicode's category for control characters; drop those and bidi controls.
+        or (unicodedata.category(ch) != "Cc" and ch not in _BIDI_CONTROLS)
+    )
+
 
 
 # input_fn and output_fn default to the real keyboard (input) and screen (print).
@@ -65,15 +89,20 @@ def run_chat(
                 # The model never answered, so remove the user message we just added.
                 # Otherwise a retry would leave two "user" messages in a row.
                 history.pop()
-                # Show the problem on one line; str(exc) is the provider's friendly message.
-                output_fn(f"[error] {exc}")
+                # Error text is output too: clean it before showing it.
+                output_fn(f"[error] {safe_for_terminal(str(exc))}")
+
                 # Go back to the prompt; the session stays alive.
                 continue
 
             # The model answered, so store its reply in the history for the next turn.
-            history.append(Message("assistant", reply))
-            # Show the reply to the user.
-            output_fn(f"winter> {reply}")
+            history.append(Message("assistant", reply.text))
+            # Show the reply, cleaned for the terminal. History above keeps the raw text.
+            output_fn(f"winter> {safe_for_terminal(reply.text)}")
+            # Tell the user when the answer was cut short, instead of hiding it.
+            if reply.was_cut_off:
+                output_fn("[note] The reply was cut short because it hit the length limit.")
+
     # EOFError = input ended (Ctrl+Z then Enter on Windows, Ctrl+D elsewhere).
     # KeyboardInterrupt = the user pressed Ctrl+C.
     except (EOFError, KeyboardInterrupt):

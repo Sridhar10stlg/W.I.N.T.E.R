@@ -2,7 +2,7 @@
 from winter.cli import main, run_chat
 
 # ProviderError lets us build a mock that fails the way a real provider would.
-from winter.providers.base import ProviderError
+from winter.providers.base import Reply, ProviderError
 
 # The fake model that stands in for a real one.
 from winter.providers.mock import MockProvider
@@ -103,6 +103,26 @@ def test_eof_exits_cleanly():
     out = run(MockProvider(), [])
     # The loop must still say goodbye as its last line, with no crash.
     assert out[-1] == "Goodbye."
+ 
+# Test 6b: terminal control characters in a reply are removed from the screen, not from history.
+def test_control_characters_removed_from_output_but_kept_in_history():
+    # ESC (\x1b), a bidi override (\u202e) and a carriage return (\r) inside a reply.
+    raw = "hi\x1b[31m red\u202e evil\r"
+    p = MockProvider(replies=[raw, "ok"])
+    out = run(p, ["a", "b", "/exit"])
+    # The screen shows the reply without the control characters.
+    assert "winter> hi[31m red evil" in out
+    # The second call's history still holds the RAW reply: we clean output, not storage.
+    assert p.calls[1][1].content == raw
+
+
+# Test 6c: a reply that hit the length limit is flagged to the user.
+def test_cut_off_reply_shows_note():
+    p = MockProvider(replies=[Reply(text="Once upon a", stop_reason="length")])
+    out = run(p, ["tell me a story", "/exit"])
+    assert "[note] The reply was cut short because it hit the length limit." in out
+   
+
 
 
 # ---- main(): the wiring (settings -> provider -> loop) -------------------------------
