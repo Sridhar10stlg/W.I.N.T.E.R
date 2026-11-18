@@ -64,13 +64,38 @@ class Reply:
         return self.stop_reason == "length"
 
 
+# ProviderError is the PARENT of every provider failure. Code that only wants to know
+# "did the provider fail?" catches this one type (run_chat does exactly that).
+# The three subclasses below add WHAT THE CALLER SHOULD DO about it (ADR 0009).
 class ProviderError(Exception):
-    """The ONLY error type the rest of the app needs to handle from a provider.
+    """Base class for every provider failure.
 
-    Each real provider (Ollama, OpenRouter) will catch its own low-level problems
-    (connection refused, timeout, bad key...) and re-raise them as ProviderError with a
-    friendly message. That keeps provider-specific details out of the CLI.
+    Each real provider (Ollama, OpenRouter) catches its own low-level problems
+    (connection refused, timeout, bad key...) and re-raises them as one of the three
+    subclasses below, with a friendly message. That keeps provider-specific details
+    out of the CLI.
+
+    Message rules (every provider error): say what happened and how to fix it; never
+    include a raw server response (untrusted data); never include any part of a secret,
+    not even a prefix; strip credentials from URLs before printing them.
     """
+
+
+# Caller action: "trying again may help". A bounded retry is allowed (ADR 0010).
+class ProviderTemporaryError(ProviderError):
+    """A failure that may go away on its own: a timeout or a rate limit."""
+
+
+# Caller action: "tell the user to start or check something". Retrying won't help yet.
+class ProviderUnavailableError(ProviderError):
+    """The provider can't be reached right now: Ollama not running, no network."""
+
+
+# Caller action: "tell the user to fix their configuration". NEVER retried.
+class ProviderSetupError(ProviderError):
+    """Something in the setup is wrong: model not found, missing or rejected key,
+    or a provider that has no adapter yet."""
+
 
 
 class Provider(ABC):
