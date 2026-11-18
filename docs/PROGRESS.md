@@ -2,7 +2,7 @@
 
 Master index for the build history. Each block of work has its own detailed page in [docs/Build/](Build/). This file only lists them and records where we are.
 
-- **Deadline:** 2027-10-19 (12 months from 2026-10-19). Schedule: [plan.md](../plan.md), section 13.
+- **Deadline:** 2027-11-09 (moved from 2027-10-19 on 2026-11-18 after a ~3-week Month 1 slip). Schedule: [plan.md](../plan.md), section 13.
 - **Working method:** AI supplies paste-ready code block by block; Sridhar reads, pastes, runs, and learns. Rules: [AI_Guidelines.md](../AI_Guidelines.md), [CLAUDE.md](../CLAUDE.md).
 - **Naming:** `yyyymmdd_block{n}.md` (the date the block was done, e.g. `20261019_block1.md`). After each block: add the page, then add a row below.
 
@@ -24,7 +24,7 @@ Native Windows Ollama is installed on the Dynabook (v0.40.11) with `gemma3:1b` a
 | 1 | 2 | 2b-3 | Timeout and model-tier settings | Planned | pending |
 | 1 | 2 | 2b-4 | `RetryingProvider` ([ADR 0010](design/decisions/0010-timeouts-and-retries.md)) | Planned | pending |
 | 1 | 3 | 3 | Ollama adapter with clear errors | Planned | pending |
-| 1 | 4 | 4 | Logging with secret redaction, failure tests | Planned | pending |
+| 1 | 4 | 4 | Logging with secret redaction, failure tests | Moved to Month 2 Week 2 | pending |
 
 ## Laptops
 
@@ -37,6 +37,7 @@ Native Windows Ollama is installed on the Dynabook (v0.40.11) with `gemma3:1b` a
 
 ## Decisions
 - **Branches:** `dev` is the day-to-day working branch. `main` is for releases only. (`master` is deleted.)
+- **2026-11-18, schedule:** v1.0 deadline moved from 2027-10-19 to 2027-11-09 (Month 1 slipped ~3 weeks). Order: 2b-1 → 2b-4 → Ollama adapter (Block 3). Logging moves to Month 2 Week 2; OpenRouter must work before Month 3 Week 4.
 
 ## Open questions
 - Tracked in [docs/design/open-questions.md](design/open-questions.md) (design questions, each with the plan month that should reopen it). Pending for the code work: the `httpx` dependency for the Ollama adapter.

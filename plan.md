@@ -345,9 +345,9 @@ W.I.N.T.E.R should become a dependable assistant that:
 
 **North star:** build a trustworthy, useful assistant one verified capability at a time.
 
-## 13. 12-month schedule (deadline: 2027-10-19)
+## 13. 12-month schedule (deadline: 2027-11-09)
 
-**Start:** 2026-10-19. **Target:** a usable v1.0 text and voice assistant with tools, permissions, and memory by 2027-10-19.
+**Start:** 2026-10-19. **Target:** a usable v1.0 text and voice assistant with tools, permissions, and memory by 2027-11-09 (moved from 2027-10-19 on 2026-11-18; see "Risks to the deadline").
 
 **Working method:** Claude provides code block by block, ready to paste; Sridhar reads, runs, and understands each block. Security and testing rules in [CLAUDE.md](CLAUDE.md) still apply.
 
@@ -364,9 +364,10 @@ W.I.N.T.E.R should become a dependable assistant that:
   - [ ] **2b-2:** error hierarchy: temporary, unavailable and setup errors ([ADR 0009](docs/design/decisions/0009-provider-error-hierarchy.md)); factory raises the setup type; `main()` exits 2 for setup problems; update the temporary "not implemented" test.
   - [ ] **2b-3:** timeout and model-tier settings in `Settings` and `.env.example` (settles design open question 5: which model is used).
   - [ ] **2b-4:** `RetryingProvider` wrapper with tests ([ADR 0010](docs/design/decisions/0010-timeouts-and-retries.md)).
-  - This uses about one to two days of the Month 1 buffer. If Month 1 slips because of it, move the OpenRouter adapter to Month 2 first (the lowest-priority Month 1 item); do not move the deadline.
-- [ ] **Week 3:** first real LLM adapter (Ollama, free and local), built on the `Reply` and error contracts above, with clear errors for Ollama not running, model not found, timeouts. Measure first-call load time and the real default context size (design open questions 12 and 14). OpenRouter adapter follows once Ollama works (clear errors for missing key, network failure, rate limit).
-- [ ] **Week 4:** structured logging with secret redaction, unit tests for config and provider failures.
+  - Month 1 slipped about 3 weeks (decided 2026-11-18): the deadline moved to 2027-11-09. Order from here: 2b-1 → 2b-4 → Ollama adapter (Week 3).
+- [ ] **Week 3:** first real LLM adapter (Ollama, free and local), built on the `Reply` and error contracts above, with clear errors for Ollama not running, model not found, timeouts. Measure first-call load time and the real default context size (design open questions 12 and 14).
+  - **OpenRouter adapter moved:** must work before Month 3 Week 4 (gemma3 has no tools capability). Clear errors for missing key, network failure, rate limit.
+- [ ] **Week 4:** structured logging with secret redaction, unit tests for config and provider failures. **Moved to Month 2 Week 2** (with cost/latency measurement).
 
 ### Month 2 (Nov 18 - Dec 17): Sessions and tool foundations (Phases 1-2)
 **Goal:** multi-turn conversations and a tool registry.
@@ -439,8 +440,8 @@ W.I.N.T.E.R should become a dependable assistant that:
 - [ ] **Week 3:** dependency and security review.
 - [ ] **Week 4:** update/rollback procedure and global stop switch.
 
-### Month 12 (Sep 14 - Oct 19): Polish and v1.0
-**Goal:** tag **v1.0** by 2027-10-19.
+### Month 12 (Sep 14 - Nov 9): Polish and v1.0
+**Goal:** tag **v1.0** by 2027-11-09.
 - [ ] **Week 1:** fix known bugs, tighten error messages.
 - [ ] **Week 2:** finish documentation (README, setup on a clean clone, security notes).
 - [ ] **Week 3:** full test run and manual walkthrough on every laptop.
@@ -451,3 +452,4 @@ W.I.N.T.E.R should become a dependable assistant that:
 - **Time:** if a week slips, use the buffer days first, then cut optional items (Month 8 write action, Month 10 entirely).
 - **Hardware:** the 4GB laptop cannot run local models, so Month 9 depends on the Dynabook or a future laptop.
 - **Cost:** track API spend monthly and set a usage limit.
+- **2026-11-18:** Month 1 slipped ~3 weeks (contract fixes 2b-1 to 2b-4 added after the design review). Deadline moved to 2027-11-09. Month 2-11 dates above are the original ones; each month now runs about 3 weeks later. Month 10 stays optional and is the next item to cut if anything slips again.

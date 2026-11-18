@@ -2,7 +2,7 @@
 
 > ## ⚠️ WARNING: PASTE-READY CODE, NO UNPROMPTED FILE EDITS
 >
-> Sridhar has a **1-year deadline (2027-10-19)** and learns by reading code. Give code **block by block, ready to paste, in the chat**, with a short explanation of each block.
+> Sridhar has a **deadline of 2027-11-09** (originally 2027-10-19; moved on 2026-11-18) and learns by reading code. Give code **block by block, ready to paste, in the chat**, with a short explanation of each block.
 >
 > **Do NOT create, edit, or delete project files, run repo-changing commands, commit, or push unless Sridhar explicitly asks.** A question or an error message is not a request to edit files.
 >

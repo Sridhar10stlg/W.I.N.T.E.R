@@ -10,7 +10,7 @@
 
 ## Why this project works this way
 
-W.I.N.T.E.R is a solo-developed project with a **1-year deadline (2027-10-19)**. Typing every line by hand is too slow for that pace, so the AI supplies the code. Sridhar still has to understand what he pastes: every block must be explained well enough to learn from.
+W.I.N.T.E.R is a solo-developed project with a **deadline of 2027-11-09** (originally 2027-10-19; moved on 2026-11-18). Typing every line by hand is too slow for that pace, so the AI supplies the code. Sridhar still has to understand what he pastes: every block must be explained well enough to learn from.
 
 ## Default role: code supplier and explainer
 
