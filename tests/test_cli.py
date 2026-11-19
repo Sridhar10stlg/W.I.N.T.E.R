@@ -2,7 +2,7 @@
 from winter.cli import main, run_chat
 
 # ProviderError lets us build a mock that fails the way a real provider would.
-from winter.providers.base import Reply, ProviderError
+from winter.providers.base import Reply, ProviderError, ProviderSetupError
 
 # The fake model that stands in for a real one.
 from winter.providers.mock import MockProvider
@@ -147,17 +147,22 @@ def test_main_config_error_returns_2_without_traceback(monkeypatch, tmp_path, ca
     assert "Traceback" not in err
 
 
-# Test 8: a provider with no adapter returns exit code 1.
-def test_main_unimplemented_provider_returns_1(monkeypatch, tmp_path, capsys):
+# Renamed: the name must describe the promise, and the promise is now "exit code 2".
+def test_main_unimplemented_provider_returns_2(monkeypatch, tmp_path, capsys):
     # TEMPORARY: delete or change this test in Week 3, when the Ollama adapter exists.
-    # Work from an empty folder.
+    # Work from an empty folder so no real .env file can leak in.
     monkeypatch.chdir(tmp_path)
     # Ask for the provider that has no adapter yet.
     monkeypatch.setenv("LOCAL_AI_PROVIDER", "ollama")
-    # main() must report a provider problem with exit code 1.
-    assert main() == 1
-    # The friendly message goes to the error stream.
-    assert "not implemented" in capsys.readouterr().err
+    # A setup problem must exit with code 2 (ADR 0009), the same stamp as a bad .env value.
+    assert main() == 2
+    # capsys.readouterr() collects what was printed; .err is the stderr part.
+    err = capsys.readouterr().err
+    # The friendly message must say what is wrong...
+    assert "not implemented" in err
+    # ...and must be prefixed so a person spots it as an error.
+    assert err.startswith("[error]")
+
 
 
 # Test 9: with the mock provider, main() builds it and starts the chat loop.

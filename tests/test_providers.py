@@ -5,7 +5,17 @@ import dataclasses
 import pytest
 
 # The pieces under test: the message type, the abstract interface, and the error type.
-from winter.providers.base import Message, Provider, ProviderError, Reply, Usage
+from winter.providers.base import (
+    Message,
+    Provider,
+    ProviderError,
+    ProviderSetupError,
+    ProviderTemporaryError,
+    ProviderUnavailableError,
+    Reply,
+    Usage,
+)
+
 
 # The fake model under test.
 from winter.providers.mock import MockProvider
@@ -116,3 +126,45 @@ def test_mock_can_return_a_full_reply():
     # "is" checks it is the very same object, not a copy or a re-wrapped string.
     assert p.generate([Message("user", "hi")]) is r
 
+# The three "kinds" of failure, collected in a list so one test can loop over all of them.
+# (A list of classes: classes are ordinary values in Python, just like numbers.)
+KINDS = [ProviderTemporaryError, ProviderUnavailableError, ProviderSetupError]
+
+
+# @pytest.mark.parametrize runs the SAME test once per item in KINDS (3 runs, 3 results).
+@pytest.mark.parametrize("kind", KINDS)
+def test_every_kind_is_a_provider_error(kind):
+    # issubclass(child, parent) asks: "is child part of the parent's family?"
+    # Every kind must be, so `except ProviderError` still catches all of them.
+    assert issubclass(kind, ProviderError)
+
+
+def test_kinds_are_not_related_to_each_other():
+    # Siblings, not parent and child. If Setup inherited from Temporary, a handler for
+    # "retry this" would wrongly catch "fix your config" and retry forever.
+    assert not issubclass(ProviderSetupError, ProviderTemporaryError)
+    assert not issubclass(ProviderTemporaryError, ProviderSetupError)
+    assert not issubclass(ProviderUnavailableError, ProviderTemporaryError)
+    assert not issubclass(ProviderTemporaryError, ProviderUnavailableError)
+
+
+def test_specific_handler_catches_only_its_own_kind():
+    # Raise a Setup error and try to catch it as a Temporary one: it must slip through.
+    # pytest.raises(X) passes only if X comes out of the block.
+    with pytest.raises(ProviderSetupError):
+        try:
+            raise ProviderSetupError("bad config")
+        # This handler is for the wrong sibling, so it must NOT catch the error.
+        except ProviderTemporaryError:
+            pytest.fail("A setup error must not be caught as a temporary error.")
+
+
+def test_parent_handler_catches_every_kind():
+    # One `except ProviderError` is enough to catch any child: this is what run_chat relies on.
+    for kind in KINDS:
+        try:
+            raise kind("boom")
+        except ProviderError as exc:
+            # The message survives the trip, and the object is still the specific kind.
+            assert str(exc) == "boom"
+            assert isinstance(exc, kind)

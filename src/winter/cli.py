@@ -13,9 +13,10 @@ from pydantic import ValidationError
 # load_settings() reads and validates all configuration.
 from winter.config import load_settings
 
-# Message is one chat turn; Provider is the interface any model backend follows;
-# ProviderError is the single error type a provider is allowed to raise.
-from winter.providers.base import Message, Provider, ProviderError
+# Message is one chat turn; Provider is the interface any model backend follows.
+# ProviderError is the parent of every provider failure (run_chat catches this one).
+# ProviderSetupError is the "your setup is wrong" kind, which main() turns into exit code 2.
+from winter.providers.base import Message, Provider, ProviderError, ProviderSetupError
 
 # build_provider() turns validated Settings into the one Provider object to use.
 from winter.providers.factory import build_provider
@@ -133,18 +134,21 @@ def main() -> int:
             # Print ONLY the field name and the reason, never the bad value itself,
             # because a bad value could be a secret (like an API key) and must not be echoed.
             print(f"  - {where}: {err['msg']}", file=sys.stderr)
-        # Exit code 2 = configuration problem.
+        # Exit code 2 = setup problem: fix your configuration.
         return 2
 
     # Step 2: turn the settings into a provider object (mock now, Ollama in Week 3).
     try:
         provider = build_provider(settings)
-    # build_provider raises ProviderError for providers that aren't implemented yet.
-    except ProviderError as exc:
-        # Show the friendly message on stderr.
-        print(f"[error] {exc}", file=sys.stderr)
-        # Exit code 1 = provider problem.
-        return 1
+    # A SETUP problem: the chosen provider can't be built (no adapter yet; later, a missing
+    # model or key). Only this kind is caught here. Anything else coming out of
+    # build_provider() would be a bug, and we WANT its traceback (fail loud, ADR 0009).
+    except ProviderSetupError as exc:
+        # Show the friendly message on stderr, cleaned like all error text.
+        print(f"[error] {safe_for_terminal(str(exc))}", file=sys.stderr)
+        # Exit code 2 = "fix your setup" (the same stamp as a bad .env value).
+        return 2
+
 
     # Step 3: hand the provider to the chat loop from F1. Runs until the user quits.
     run_chat(provider)
