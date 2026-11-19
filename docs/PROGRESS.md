@@ -8,7 +8,7 @@ Master index for the build history. Each block of work has its own detailed page
 
 ## Current position
 
-**Next up:** Month 1, Week 3, Block 3 (Ollama adapter with clear errors). Blocks 2b-1 to 2b-4 are done and verified (56 tests passed on the Dynabook): `Reply`, error hierarchy, exit code 2, timeout and model-tier settings, and the `RetryingProvider` wrapper. Block 3 needs Sridhar's decision on adding `httpx`.
+**Next up:** Month 1, Week 3, Block 3 (Ollama adapter with clear errors). Blocks 2b-1 to 2b-4 are done and verified (56 tests passed on the Dynabook): `Reply`, error hierarchy, exit code 2, timeout and model-tier settings, and the `RetryingProvider` wrapper. Block 3 is in progress; `httpx` was approved on 2026-11-19 as its HTTP library.
 
 Native Windows Ollama is installed on the Dynabook (v0.40.11) with `gemma3:1b` and `gemma3:4b` pulled. Neither lists a `tools` capability, which matters for Month 3 (see [plan.md](../plan.md)).
 
@@ -23,7 +23,7 @@ Native Windows Ollama is installed on the Dynabook (v0.40.11) with `gemma3:1b` a
 | 1 | 2 | 2b-2 | Error hierarchy, exit code 2 for setup problems ([ADR 0009](design/decisions/0009-provider-error-hierarchy.md)) | Done | [20261119_block2b.md](Build/20261119_block2b.md) |
 | 1 | 2 | 2b-3 | Timeout and model-tier settings | Done | [20261119_block2b.md](Build/20261119_block2b.md) |
 | 1 | 2 | 2b-4 | `RetryingProvider`, wired in `build_provider` ([ADR 0010](design/decisions/0010-timeouts-and-retries.md)) | Done | [20261119_block2b.md](Build/20261119_block2b.md) |
-| 1 | 3 | 3 | Ollama adapter with clear errors | Planned | pending |
+| 1 | 3 | 3 | Ollama adapter with clear errors | In progress | pending |
 | 1 | 4 | 4 | Logging with secret redaction, failure tests | Moved to Month 2 Week 2 | pending |
 
 ## Laptops
@@ -38,6 +38,7 @@ Native Windows Ollama is installed on the Dynabook (v0.40.11) with `gemma3:1b` a
 ## Decisions
 - **Branches:** `dev` is the day-to-day working branch. `main` is for releases only. (`master` is deleted.)
 - **2026-11-18, schedule:** v1.0 deadline moved from 2027-10-19 to 2027-11-09 (Month 1 slipped ~3 weeks). Order: 2b-1 → 2b-4 → Ollama adapter (Block 3); 2b-1 to 2b-4 finished 2026-11-19, so the slip did not grow. Logging moves to Month 2 Week 2; OpenRouter must work before Month 3 Week 4.
+- **2026-11-19, HTTP library:** `httpx` for the Ollama (and later OpenRouter) adapter. Offline tests with `MockTransport`, clear timeout errors, can stream later. Details on the Block 3 build page.
 
 ## Open questions
-- Tracked in [docs/design/open-questions.md](design/open-questions.md) (design questions, each with the plan month that should reopen it). Pending for the code work: the `httpx` dependency for the Ollama adapter.
+- Tracked in [docs/design/open-questions.md](design/open-questions.md) (design questions, each with the plan month that should reopen it).
