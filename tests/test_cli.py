@@ -147,13 +147,14 @@ def test_main_config_error_returns_2_without_traceback(monkeypatch, tmp_path, ca
     assert "Traceback" not in err
 
 
-# Renamed: the name must describe the promise, and the promise is now "exit code 2".
 def test_main_unimplemented_provider_returns_2(monkeypatch, tmp_path, capsys):
-    # TEMPORARY: delete or change this test in Week 3, when the Ollama adapter exists.
+    # TEMPORARY: delete or change this test when the OpenRouter adapter exists (Month 2 to 3).
     # Work from an empty folder so no real .env file can leak in.
     monkeypatch.chdir(tmp_path)
-    # Ask for the provider that has no adapter yet.
-    monkeypatch.setenv("LOCAL_AI_PROVIDER", "ollama")
+    # OpenRouter is the provider that still has no adapter.
+    monkeypatch.setenv("LOCAL_AI_PROVIDER", "openrouter")
+    # It needs a key to be a VALID setting. This is a fake placeholder, never a real key.
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key-not-real")
     # A setup problem must exit with code 2 (ADR 0009), the same stamp as a bad .env value.
     assert main() == 2
     # capsys.readouterr() collects what was printed; .err is the stderr part.
@@ -162,6 +163,17 @@ def test_main_unimplemented_provider_returns_2(monkeypatch, tmp_path, capsys):
     assert "not implemented" in err
     # ...and must be prefixed so a person spots it as an error.
     assert err.startswith("[error]")
+
+
+def test_main_bad_ollama_url_returns_2(monkeypatch, tmp_path, capsys):
+    # A typo in LOCAL_OLLAMA_URL must stop the app at startup with the setup exit code.
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("LOCAL_AI_PROVIDER", "ollama")
+    # Forgot the "http://": the classic mistake.
+    monkeypatch.setenv("LOCAL_OLLAMA_URL", "localhost:11434")
+    assert main() == 2
+    # The message names the setting to fix.
+    assert "LOCAL_OLLAMA_URL" in capsys.readouterr().err
 
 
 

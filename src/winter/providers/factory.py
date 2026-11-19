@@ -8,9 +8,11 @@ from winter.providers.base import Provider, ProviderSetupError
 # The fake model, used when LOCAL_AI_PROVIDER=mock.
 from winter.providers.mock import MockProvider
 
+# The real adapter for a local Ollama server.
+from winter.providers.ollama import OllamaProvider
+
 # the wrapper that retries ONE temporary failure (ADR 0010).
 from winter.providers.retrying import RetryingProvider
-
 
 # The "waiter": it reads the order (settings.provider) and returns the right provider object.
 def build_provider(settings: Settings) -> Provider:
@@ -20,21 +22,28 @@ def build_provider(settings: Settings) -> Provider:
     so the CLI never imports a concrete provider. It is also the only place that
     adds the retry wrapper, so no provider can reach the CLI without it (ADR 0010).
 
-    Raises ProviderSetupError if the chosen provider has no adapter yet.
+    Raises ProviderSetupError if the chosen provider cannot be built: no adapter yet,
+    or a bad address in LOCAL_OLLAMA_URL.
     """
-    # If the order is "mock", the kitchen can cook it: build the fake model.
-    # We store it in `inner` (the bare provider) instead of returning it straight away.
+    # The fake model: nothing to install, used for tests and demos.
     if settings.provider == "mock":
         inner: Provider = MockProvider()
-
-    # "ollama" and "openrouter" are on the menu (valid settings) but not cooked yet.
-    # That is a SETUP problem, not a model failure, so we raise the setup error.
-    # Week 3 replaces this branch with real adapters, each one also assigned to `inner`.
+    # The real local model. Everything it needs comes from validated Settings:
+    # the address, the model chosen by LOCAL_AI_MODEL_TIER, and the timeout.
+    # A bad address raises ProviderSetupError right here, at startup.
+    elif settings.provider == "ollama":
+        inner = OllamaProvider(
+            base_url=settings.ollama_url,
+            model=settings.model,
+            timeout_seconds=settings.timeout_seconds,
+        )
+    # "openrouter" is a valid setting but has no adapter yet. That is a SETUP problem,
+    # not a model failure, so we raise the setup error.
     else:
         raise ProviderSetupError(
             f"The '{settings.provider}' provider is not implemented yet. "
-            "Set LOCAL_AI_PROVIDER=mock to run without a model."
+            "Set LOCAL_AI_PROVIDER=ollama (or mock to run without a model)."
         )
-        
-    # Wrap the inner provider with the retrying wrapper and return it.
+
+    # Every branch above ends here: put the bare provider in its "phone case" and hand it over.
     return RetryingProvider(inner)
