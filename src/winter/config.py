@@ -26,8 +26,20 @@ class Settings(BaseSettings):
     model_low: str = Field("gemma3:1b", alias="LOCAL_AI_MODEL_LOW")
     model_high: str = Field("gemma3:4b", alias="LOCAL_AI_MODEL_HIGH")
     
+    # Which of the two models above to use. The USER decides (via .env); code never guesses.
+    # Literal rejects typos like "hgih". Default "low" is the safe choice for small laptops.
+    model_tier: Literal["low", "high"] = Field("low", alias="LOCAL_AI_MODEL_TIER")
+
+    
     # Where the Ollama server listens. 11434 is Ollama's default port.
     ollama_url: str = Field("http://localhost:11434", alias="LOCAL_OLLAMA_URL")
+    
+    # How many seconds to wait for a model reply before giving up (ADR 0010).
+    # gt=0 refuses 0 and negatives (a 0-second wait would fail every call).
+    # le=600 refuses absurd values (10 minutes is already generous; an app that waits
+    # an hour looks frozen). 120 s is a CPU-friendly default: the first call must load the model.
+    timeout_seconds: float = Field(120, gt=0, le=600, alias="LOCAL_AI_TIMEOUT_SECONDS")
+
     
     # The OpenRouter key. None means "not set". SecretStr stops it leaking into logs.
     openrouter_api_key: SecretStr | None = Field(None, alias="OPENROUTER_API_KEY")  # SecretStr hides the value
@@ -43,6 +55,14 @@ class Settings(BaseSettings):
             raise ValueError("OPENROUTER_API_KEY is required when using the OpenRouter provider.")
         # A validator must return the object when everything is fine.
         return self
+    
+    # A property reads like a field (settings.model) but is computed from the other fields.
+    @property
+    def model(self) -> str:
+        """The model name the chosen tier points to. Adapters use this, never model_low/high."""
+        # One decision in one place: the tier picks the name.
+        return self.model_high if self.model_tier == "high" else self.model_low
+
     
 def load_settings() -> Settings:
     """Load settings from environment variables and .env file, returning a validated Settings object.
