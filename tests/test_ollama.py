@@ -225,14 +225,35 @@ def test_credentials_in_the_url_never_appear_in_error_messages():
     assert "user" not in message
 
 
-def test_malformed_port_does_not_crash_the_error_message():
-    def handler(request):
-        raise httpx.ConnectError("refused")
+# Five kinds of broken address. Each must be refused when the adapter is BUILT.
+@pytest.mark.parametrize(
+    "bad_url",
+    [
+        "http://localhost:abc",   # port is not a number
+        "localhost:11434",        # forgot the http://
+        "ftp://localhost",        # not a web address
+        "http://",                # no host name
+        "",                       # empty
+    ],
+)
+def test_bad_url_is_refused_at_startup_as_a_setup_error(bad_url):
+    # No request is ever made: the problem is caught while building the provider.
+    with pytest.raises(ProviderSetupError, match="LOCAL_OLLAMA_URL"):
+        OllamaProvider(bad_url, "gemma3:1b", 5)
 
-    # "abc" is not a port number; building the error text must still work.
-    provider = make_provider(handler, url="http://localhost:abc")
-    with pytest.raises(ProviderUnavailableError, match="configured Ollama address"):
-        provider.generate(CONVO)
+
+def test_bad_url_message_does_not_echo_the_address():
+    # The address carries a canary password: it must not come back in the message.
+    with pytest.raises(ProviderSetupError) as caught:
+        OllamaProvider("ftp://user:secret@localhost", "gemma3:1b", 5)
+    assert "secret" not in str(caught.value)
+
+
+def test_https_address_without_a_port_is_accepted():
+    # A valid address must still work (guards against a validator that is too strict).
+    provider = OllamaProvider("https://ollama.example.com", "gemma3:1b", 5)
+    assert provider.name == "ollama"
+
 
 
 # --- the adapter as a citizen of the system -----------------------------------------------

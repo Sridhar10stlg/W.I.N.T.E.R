@@ -50,23 +50,43 @@ def _usage_from(data: dict) -> Usage | None:
     # Anything else: say "not reported" rather than guess.
     return None
 
-# Error messages are printed, and a configured URL could contain a password
-# (http://user:secret@host). This helper rebuilds the address with scheme, host and port only.
+# One fixed message for every kind of bad address. It never echoes the value,
+# because the value might contain a password (http://user:secret@host).
+_BAD_URL_MESSAGE = (
+    "LOCAL_OLLAMA_URL is not a valid address. "
+    "It must look like http://localhost:11434"
+)
+
+
+# Checks the configured address and returns the version that is safe to print.
+# Called once, from __init__, so a bad address fails at startup (exit code 2 in main()).
 def _display_url(base_url: str) -> str:
-    """Return the Ollama address safe to show to a person (no credentials, no path)."""
+    """Validate the Ollama address; return it without credentials or path.
+
+    Raises ProviderSetupError if the address cannot be used.
+    """
     try:
         # Take the address apart into scheme, host, port...
         parts = urlsplit(base_url)
-        # hostname never includes user:password. If it is missing, show a placeholder.
-        netloc = parts.hostname or "?"
-        # Add the port when there is one (parts.port raises ValueError on a bad port).
-        if parts.port:
-            netloc += f":{parts.port}"
-        # Put the safe pieces back together.
-        return f"{parts.scheme}://{netloc}"
+        # Reading .port raises ValueError when the port is not a number (http://localhost:abc).
+        port = parts.port
     except ValueError:
-        # A malformed address: say so without echoing it back.
-        return "the configured Ollama address"
+        # `from None`: the original error text could contain the address.
+        raise ProviderSetupError(_BAD_URL_MESSAGE) from None
+
+    # Only web addresses make sense here, and a host name is required.
+    # This rejects "localhost:11434" (no http://), "ftp://...", "http://" and "".
+    if parts.scheme not in ("http", "https") or not parts.hostname:
+        raise ProviderSetupError(_BAD_URL_MESSAGE)
+
+    # hostname never includes user:password, so credentials are dropped here.
+    netloc = parts.hostname
+    # Add the port when there is one.
+    if port:
+        netloc += f":{port}"
+    # Put the safe pieces back together.
+    return f"{parts.scheme}://{netloc}"
+
 
 
 
