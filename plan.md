@@ -360,10 +360,10 @@ W.I.N.T.E.R should become a dependable assistant that:
 - [x] **Week 1:** Python project skeleton, `pyproject.toml`, `.env.example`, validated config loader.
 - [x] **Week 2:** CLI loop, provider interface, mock provider.
 - [ ] **Week 2 follow-up (contract fixes before the adapter):** the design review ([docs/design/](docs/design/)) found the provider contract must change before the first real adapter, because every adapter, the mock, the CLI and the tests depend on it. One block per step, in this order:
-  - [ ] **2b-1:** `Reply` and `Usage` objects; `generate()` returns `Reply` ([ADR 0008](docs/design/decisions/0008-reply-object.md)); update the mock, `run_chat` and tests. Add a safe-terminal-output helper for reply text ([trust boundaries](docs/design/diagrams/trust-boundaries.md)).
-  - [ ] **2b-2:** error hierarchy: temporary, unavailable and setup errors ([ADR 0009](docs/design/decisions/0009-provider-error-hierarchy.md)); factory raises the setup type; `main()` exits 2 for setup problems; update the temporary "not implemented" test.
-  - [ ] **2b-3:** timeout and model-tier settings in `Settings` and `.env.example` (settles design open question 5: which model is used).
-  - [ ] **2b-4:** `RetryingProvider` wrapper with tests ([ADR 0010](docs/design/decisions/0010-timeouts-and-retries.md)).
+  - [x] **2b-1:** `Reply` and `Usage` objects; `generate()` returns `Reply` ([ADR 0008](docs/design/decisions/0008-reply-object.md)); update the mock, `run_chat` and tests. Add a safe-terminal-output helper for reply text ([trust boundaries](docs/design/diagrams/trust-boundaries.md)).
+  - [x] **2b-2:** error hierarchy: temporary, unavailable and setup errors ([ADR 0009](docs/design/decisions/0009-provider-error-hierarchy.md)); factory raises the setup type; `main()` exits 2 for setup problems; update the temporary "not implemented" test.
+  - [x] **2b-3:** timeout and model-tier settings in `Settings` and `.env.example` (settles design open question 5: which model is used).
+  - [x] **2b-4:** `RetryingProvider` wrapper with tests, wired in through `build_provider` ([ADR 0010](docs/design/decisions/0010-timeouts-and-retries.md)).
   - Month 1 slipped about 3 weeks (decided 2026-11-18): the deadline moved to 2027-11-09. Order from here: 2b-1 → 2b-4 → Ollama adapter (Week 3).
 - [ ] **Week 3:** first real LLM adapter (Ollama, free and local), built on the `Reply` and error contracts above, with clear errors for Ollama not running, model not found, timeouts. Measure first-call load time and the real default context size (design open questions 12 and 14).
   - **OpenRouter adapter moved:** must work before Month 3 Week 4 (gemma3 has no tools capability). Clear errors for missing key, network failure, rate limit.
