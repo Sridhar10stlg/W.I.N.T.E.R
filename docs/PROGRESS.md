@@ -8,7 +8,7 @@ Master index for the build history. Each block of work has its own detailed page
 
 ## Current position
 
-**Next up:** Month 1, Week 3, Block 3 (Ollama adapter with clear errors). Blocks 2b-1 to 2b-4 are done and verified (56 tests passed on the Dynabook): `Reply`, error hierarchy, exit code 2, timeout and model-tier settings, and the `RetryingProvider` wrapper. Block 3 is in progress; `httpx` was approved on 2026-11-19 as its HTTP library.
+**Next up:** Month 2 Week 1: conversation/session handling, system prompt, and a history size limit (design open questions 6 and 12). Month 1 is complete: Blocks 2b-1 to 2b-4 and Block 3 are done and verified (94 tests passed on the Dynabook). W.I.N.T.E.R now has a real local model: `python -m winter` chats with `gemma3:4b` through Ollama. Still to do from the plan: the OpenRouter adapter (must work before Month 3 Week 4) and logging (Month 2 Week 2).
 
 Native Windows Ollama is installed on the Dynabook (v0.40.11) with `gemma3:1b` and `gemma3:4b` pulled. Neither lists a `tools` capability, which matters for Month 3 (see [plan.md](../plan.md)).
 
@@ -23,7 +23,7 @@ Native Windows Ollama is installed on the Dynabook (v0.40.11) with `gemma3:1b` a
 | 1 | 2 | 2b-2 | Error hierarchy, exit code 2 for setup problems ([ADR 0009](design/decisions/0009-provider-error-hierarchy.md)) | Done | [20261119_block2b.md](Build/20261119_block2b.md) |
 | 1 | 2 | 2b-3 | Timeout and model-tier settings | Done | [20261119_block2b.md](Build/20261119_block2b.md) |
 | 1 | 2 | 2b-4 | `RetryingProvider`, wired in `build_provider` ([ADR 0010](design/decisions/0010-timeouts-and-retries.md)) | Done | [20261119_block2b.md](Build/20261119_block2b.md) |
-| 1 | 3 | 3 | Ollama adapter with clear errors | In progress | pending |
+| 1 | 3 | 3 | Ollama adapter with clear errors ([ADR 0011](design/decisions/0011-httpx-for-http.md)) | Done | [20261119_block3.md](Build/20261119_block3.md) |
 | 1 | 4 | 4 | Logging with secret redaction, failure tests | Moved to Month 2 Week 2 | pending |
 
 ## Laptops

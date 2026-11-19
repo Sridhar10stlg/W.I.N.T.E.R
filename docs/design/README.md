@@ -35,6 +35,7 @@ It is written in architecture-mentoring sessions. No code lives here. When a dec
 | [0008](decisions/0008-reply-object.md) | Provider returns a `Reply` object (text, stop reason, usage) | Accepted, implemented (2b-1) | 2026-10-26 |
 | [0009](decisions/0009-provider-error-hierarchy.md) | Provider errors: small hierarchy grouped by caller action | Accepted, implemented (2b-2) | 2026-10-26 |
 | [0010](decisions/0010-timeouts-and-retries.md) | Timeouts and retries: one wrapper layer, never retry actions | Accepted, implemented (2b-3, 2b-4) | 2026-10-26 |
+| [0011](decisions/0011-httpx-for-http.md) | `httpx` as the HTTP library for model adapters | Accepted, implemented (Block 3) | 2026-11-19 |
 
 ## Mentoring topics
 
