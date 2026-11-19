@@ -1,6 +1,6 @@
 # 0008: Provider returns a `Reply` object (text, stop reason, usage)
 
-- **Status:** Accepted
+- **Status:** Accepted. **Implemented** 2026-11-19 in Block 2b-1 (`ec7716e`); see [build page](../../Build/20261119_block2b.md).
 - **Date:** 2026-10-26
 - **Recorded:** 2026-10-26
 - **Supersedes:** the return-type part of [0006](0006-sync-str-return.md). The synchronous call and the single `ProviderError` remain under 0006 for now.

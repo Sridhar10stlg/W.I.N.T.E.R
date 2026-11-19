@@ -1,6 +1,6 @@
 # 0009: Provider errors: a small hierarchy grouped by what the caller can do
 
-- **Status:** Accepted
+- **Status:** Accepted. **Implemented** 2026-11-19 in Block 2b-2 (`2e70c3f`, `11e91d3`, `4f4fca3`). Adapter mappings (hand-off step 3) arrive with Block 3.
 - **Date:** 2026-10-26
 - **Recorded:** 2026-10-26
 - **Supersedes:** the error part of [0006](0006-sync-str-return.md).

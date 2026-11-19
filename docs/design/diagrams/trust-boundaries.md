@@ -29,7 +29,5 @@ What W.I.N.T.E.R trusts and what it treats as untrusted data. A trust boundary i
 - `Settings` validates config at startup, and `SecretStr` hides the API key.
 - Config errors print the field name and reason, never the value.
 - There are no tools, so the model can't trigger any action. Its output is only printed.
-
-## Planned, not built yet
-
-- **Safe terminal output.** Reply text is untrusted and can carry terminal control characters (escape sequences that move the cursor, change colours or rewrite earlier lines). Before the CLI prints `Reply.text`, a small helper should strip them, keeping normal text, newlines and tabs. The model's words are still shown; only control codes are removed. To be added with the `Reply` work ([ADR 0008](../decisions/0008-reply-object.md)); needs a test that an escape sequence in a reply does not reach the output. Stored history should keep the original text or the cleaned text consistently; decide in the code session.
+- **Safe terminal output (Block 2b-1, 2026-11-19):** `safe_for_terminal()` in `cli.py` removes control characters (Unicode category `Cc`, except newline and tab) and bidi controls from reply and error text before printing. **Decided:** clean at the output boundary only; history keeps the raw text, so the model sees exactly what was said. Tested in `tests/test_cli.py`.
+- Provider error messages follow the [ADR 0009](../decisions/0009-provider-error-hierarchy.md) rules (no raw response body, no part of a secret). Real adapters must keep to them from Block 3.

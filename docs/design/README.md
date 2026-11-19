@@ -32,14 +32,14 @@ It is written in architecture-mentoring sessions. No code lives here. When a dec
 | [0005](decisions/0005-provider-abc.md) | Provider interface as an ABC | Accepted (retroactive) | 2026-10-26 |
 | [0006](decisions/0006-sync-str-return.md) | Provider contract: sync `generate() -> str`, one `ProviderError` | Accepted (retroactive); return type superseded by 0008, errors by 0009; sync call stands | 2026-10-26 |
 | [0007](decisions/0007-cli-structure.md) | CLI structure: factory, injected I/O, rollback, exit codes | Accepted (retroactive); exit-code part partially superseded by 0009 | 2026-10-26 |
-| [0008](decisions/0008-reply-object.md) | Provider returns a `Reply` object (text, stop reason, usage) | Accepted | 2026-10-26 |
-| [0009](decisions/0009-provider-error-hierarchy.md) | Provider errors: small hierarchy grouped by caller action | Accepted | 2026-10-26 |
-| [0010](decisions/0010-timeouts-and-retries.md) | Timeouts and retries: one wrapper layer, never retry actions | Accepted | 2026-10-26 |
+| [0008](decisions/0008-reply-object.md) | Provider returns a `Reply` object (text, stop reason, usage) | Accepted, implemented (2b-1) | 2026-10-26 |
+| [0009](decisions/0009-provider-error-hierarchy.md) | Provider errors: small hierarchy grouped by caller action | Accepted, implemented (2b-2) | 2026-10-26 |
+| [0010](decisions/0010-timeouts-and-retries.md) | Timeouts and retries: one wrapper layer, never retry actions | Accepted, implemented (2b-3, 2b-4) | 2026-10-26 |
 
 ## Mentoring topics
 
-1. Provider boundary (**in progress**)
-2. Conversation and state
+1. Provider boundary (**done**: ADRs 0008-0010, implemented in Blocks 2b-1 to 2b-4)
+2. Conversation and state (**next**, due Month 2 Week 1)
 3. Orchestrator
 4. Tool system and permissions
 5. Memory

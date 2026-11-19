@@ -73,6 +73,17 @@ Short, plain-language notes on design concepts, each tied to a real W.I.N.T.E.R 
 - **W.I.N.T.E.R example:** `ProviderTemporaryError` is a `ProviderError`, so `run_chat`'s existing `except ProviderError` still catches it, with no change.
 - **Trap:** Python checks `except` lines top to bottom and uses the **first** match. Put the specific type first and the general type last, or the specific handler never runs.
 
+## Wrapper (decorator) pattern
+
+- **What:** an object that *is a* Provider and *has a* Provider inside. It passes calls through and adds one behaviour around them.
+- **W.I.N.T.E.R example:** `RetryingProvider(inner)` (Block 2b-4) adds the retry; the CLI can't tell it from a plain provider. `build_provider` is the only place that wraps, so no provider reaches the CLI unwrapped.
+- **Why it's good:** the retry rule lives in one place, and every future adapter gets it for free.
+
+## Clean at the output boundary, not in storage
+
+- **What:** transform data for where it is going, at the moment it goes there. Keep the stored copy original.
+- **W.I.N.T.E.R example:** `safe_for_terminal()` cleans reply text only when printing; history keeps the raw text for the model.
+
 ## Retries: one layer only, and only if safe to repeat
 
 - **Retry amplification:** if two layers each try 3 times, one question makes 3 × 3 = 9 calls. Retry in one place only (W.I.N.T.E.R: a `RetryingProvider` wrapper).

@@ -1,6 +1,6 @@
 # 0010: Timeouts and retries: one wrapper layer, never retry actions
 
-- **Status:** Accepted
+- **Status:** Accepted. **Implemented** 2026-11-19 in Blocks 2b-3 and 2b-4 (`a17c70f`, `dbad83b`): `LOCAL_AI_TIMEOUT_SECONDS` (default 120, range (0, 600]) and `RetryingProvider`, added only in `build_provider`. Adapters passing the timeout to HTTP (hand-off step 2) arrive with Block 3.
 - **Date:** 2026-10-26
 - **Recorded:** 2026-10-26
 
