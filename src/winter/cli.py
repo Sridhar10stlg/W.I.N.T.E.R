@@ -13,13 +13,24 @@ from pydantic import ValidationError
 # load_settings() reads and validates all configuration.
 from winter.config import load_settings
 
-# Message is one chat turn; Provider is the interface any model backend follows.
+# Provider is the interface any model backend follows.
 # ProviderError is the parent of every provider failure (run_chat catches this one).
 # ProviderSetupError is the "your setup is wrong" kind, which main() turns into exit code 2.
-from winter.providers.base import Message, Provider, ProviderError, ProviderSetupError
+from winter.providers.base import Provider, ProviderError, ProviderSetupError
 
 # build_provider() turns validated Settings into the one Provider object to use.
 from winter.providers.factory import build_provider
+
+# prompt_budget turns the window size into "how many tokens the conversation may use".
+from winter.budget import prompt_budget
+
+# The Session owns the conversation (ADR 0012). ConversationTooLongError is what trim() raises
+# when even the system prompt plus the newest message do not fit.
+from winter.session import ConversationTooLongError, Session
+
+# load_system_prompt() reads the assistant's standing rules from the prompt file.
+from winter.system_prompt import load_system_prompt
+
 
 # The words that end the session when the user types them.
 # A set is used because "is this word in the group?" is a fast, simple check.
@@ -48,15 +59,18 @@ def safe_for_terminal(text: str) -> str:
 
 
 # input_fn and output_fn default to the real keyboard (input) and screen (print).
-# Tests will pass fake ones instead, so the loop never needs a real person or a real model.
+# Tests pass fake ones instead, so the loop never needs a real person or a real model.
 def run_chat(
     provider: Provider,                                  # the model backend to talk to (mock, ollama, ...)
+    session: Session | None = None,                      # the conversation (messages + system prompt + size limit)
     input_fn: Callable[[str], str] = input,              # how we read a line from the user
     output_fn: Callable[[str], None] = print,            # how we show a line to the user
 ) -> None:                                               # returns nothing; it just runs until the user quits
-    """The chat loop. Input and output are injected so tests need no keyboard or screen."""
-    # The conversation so far, oldest message first. Starts empty.
-    history: list[Message] = []
+    """The chat loop. The Session, input and output are injected so tests need no model or keyboard."""
+    # main() passes a real Session (system prompt + budget). Without one, use a bare Session
+    # with no rules and no size limit; that is only meant for simple tests.
+    if session is None:
+        session = Session()
 
     # Greet the user and show which provider is active (this is why Provider has a `name`).
     output_fn(f"W.I.N.T.E.R ({provider.name}). Type /exit to quit.")
@@ -78,27 +92,47 @@ def run_chat(
                 # ...leave the while loop.
                 break
 
-            # Record what the user said. Message("user", text) is role + content.
-            history.append(Message("user", text))
+            # Record what the user said. The Session checks the turn-taking rule for us.
+            session.add_user(text)
+
+            # Make sure the conversation fits the model's window BEFORE sending it (ADR 0012).
+            try:
+                # trim() returns how many old messages it had to drop (0 = none).
+                dropped = session.trim()
+            # Even the system prompt plus this message alone do not fit: the user must shorten it.
+            except ConversationTooLongError as exc:
+                # The question was never answered, so cross it out of the conversation.
+                session.discard_last_user()
+                # Say so visibly, with the text cleaned like all output.
+                output_fn(f"[error] {safe_for_terminal(str(exc))}")
+                # Back to the prompt; the session stays alive.
+                continue
+
+            # Never forget silently: tell the user when old messages were dropped.
+            if dropped:
+                output_fn(
+                    f"[note] The conversation got long, so {dropped} older messages "
+                    "were dropped from the model's memory."
+                )
 
             # Provider calls can fail, so we guard this one call.
             try:
-                # Send the WHOLE history so the model sees earlier turns; get back one reply string.
-                reply = provider.generate(history)
+                # Send the system prompt plus the conversation (a fresh list); get back a Reply.
+                reply = provider.generate(session.messages_for_model())
             # Catch only ProviderError: the expected, friendly kind of failure.
             except ProviderError as exc:
-                # The model never answered, so remove the user message we just added.
+                # The model never answered, so cross out the question we just added.
                 # Otherwise a retry would leave two "user" messages in a row.
-                history.pop()
+                session.discard_last_user()
                 # Error text is output too: clean it before showing it.
                 output_fn(f"[error] {safe_for_terminal(str(exc))}")
 
                 # Go back to the prompt; the session stays alive.
                 continue
 
-            # The model answered, so store its reply in the history for the next turn.
-            history.append(Message("assistant", reply.text))
-            # Show the reply, cleaned for the terminal. History above keeps the raw text.
+            # The model answered, so store its reply for the next turn (raw text, not cleaned).
+            session.add_assistant(reply.text)
+            # Show the reply, cleaned for the terminal. The session keeps the raw text.
             output_fn(f"winter> {safe_for_terminal(reply.text)}")
             # Tell the user when the answer was cut short, instead of hiding it.
             if reply.was_cut_off:
@@ -150,8 +184,16 @@ def main() -> int:
         return 2
 
 
-    # Step 3: hand the provider to the chat loop from F1. Runs until the user quits.
-    run_chat(provider)
+    # Step 3: build the conversation: the assistant's standing rules plus the size limit.
+    # This is the one place that wires them together (the composition root).
+    # The size limit is the window MINUS room for the reply, the same number Ollama is told.
+    session = Session(
+        load_system_prompt(),
+        budget_tokens=prompt_budget(settings.context_tokens),
+    )
+    # Step 4: hand the provider and the session to the chat loop. Runs until the user quits.
+    run_chat(provider, session)
     # Exit code 0 = everything went fine.
-    return 0
+    return 0   
+
 
