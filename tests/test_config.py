@@ -6,6 +6,9 @@ from pydantic import ValidationError
 
 from winter.config import Settings
 
+# prompt_budget is used to prove the smallest allowed window still leaves room for a conversation.
+from winter.budget import prompt_budget
+
 # _env_file=None in every test means "ignore my real .env". Tests must give the
 # same result on every laptop and must never use real keys.
 
@@ -101,3 +104,35 @@ def test_timeout_outside_allowed_range_rejected(bad):
 def test_timeout_edges_are_accepted(edge):
     # Just above 0 and exactly 600 are both legal (gt=0 excludes 0; le=600 includes 600).
     assert Settings(_env_file=None, LOCAL_AI_TIMEOUT_SECONDS=edge).timeout_seconds == edge
+
+# --- context window (ADR 0012) ---------------------------------------------------------
+
+def test_default_context_window_is_4096_tokens():
+    # The window we measured on the Dynabook; the safe default for small laptops.
+    assert Settings(_env_file=None).context_tokens == 4096
+
+
+def test_context_window_is_read_from_the_environment(monkeypatch):
+    monkeypatch.setenv("LOCAL_AI_CONTEXT_TOKENS", "8192")
+    # Environment values arrive as text; pydantic converts "8192" to the integer 8192.
+    assert Settings(_env_file=None).context_tokens == 8192
+
+
+# Too small, just under the minimum, too big, and not a number at all.
+@pytest.mark.parametrize("bad", [0, 1023, 131073, "abc"])
+def test_context_window_outside_the_allowed_range_is_rejected(bad):
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, LOCAL_AI_CONTEXT_TOKENS=bad)
+
+
+# The edges of the range are accepted (ge=1024 includes 1024; le=131072 includes 131072).
+@pytest.mark.parametrize("edge", [1024, 131072])
+def test_context_window_edges_are_accepted(edge):
+    assert Settings(_env_file=None, LOCAL_AI_CONTEXT_TOKENS=edge).context_tokens == edge
+
+
+def test_the_smallest_allowed_window_still_leaves_room_for_a_conversation():
+    # Settings and the budget code were written separately; this proves they fit together.
+    # 1024 minus the 512-token reply reserve leaves 512 tokens for the conversation.
+    smallest = Settings(_env_file=None, LOCAL_AI_CONTEXT_TOKENS=1024).context_tokens
+    assert prompt_budget(smallest) == 512

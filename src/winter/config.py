@@ -39,7 +39,14 @@ class Settings(BaseSettings):
     # le=600 refuses absurd values (10 minutes is already generous; an app that waits
     # an hour looks frozen). 120 s is a CPU-friendly default: the first call must load the model.
     timeout_seconds: float = Field(120, gt=0, le=600, alias="LOCAL_AI_TIMEOUT_SECONDS")
-
+    
+    # How many tokens the model can read at once: the "suitcase" (ADR 0012).
+    # ONE number drives both our trimming budget and the num_ctx we send to Ollama, so they
+    # cannot disagree. ge=1024 keeps it larger than the reply reserve (512) with room to spare.
+    # le=131072 is the largest window of the models we use (gemma3:4b). Smaller models allow
+    # less (gemma3:1b: 32768); that model-specific limit is not checked here.
+    # Bigger means more RAM and slower answers on a CPU, so the default stays small.
+    context_tokens: int = Field(4096, ge=1024, le=131072, alias="LOCAL_AI_CONTEXT_TOKENS")
     
     # The OpenRouter key. None means "not set". SecretStr stops it leaking into logs.
     openrouter_api_key: SecretStr | None = Field(None, alias="OPENROUTER_API_KEY")  # SecretStr hides the value
