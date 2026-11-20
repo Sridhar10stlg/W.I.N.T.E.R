@@ -1,8 +1,12 @@
 # main and run_chat are the two things under test, both from cli.py.
 from winter.cli import main, run_chat
 
+# Message is used to check exactly what was sent to the model.
 # ProviderError lets us build a mock that fails the way a real provider would.
-from winter.providers.base import Reply, ProviderError, ProviderSetupError
+from winter.providers.base import Message, Reply, ProviderError, ProviderSetupError
+
+# The conversation object that run_chat now uses (ADR 0012).
+from winter.session import Session
 
 # The fake model that stands in for a real one.
 from winter.providers.mock import MockProvider
@@ -29,16 +33,16 @@ def fake_input(lines):
     # Give the caller the finished fake input function.
     return _input
 
-
 # Runs the chat loop with scripted input and returns everything it printed.
-def run(provider, lines):
+def run(provider, lines, session=None):
     """Run the loop with scripted input and return everything it printed."""
     # A plain list that collects each line the loop "prints".
     out: list[str] = []
-    # out.append works as the fake print: each output line is added to the list.
-    run_chat(provider, input_fn=fake_input(lines), output_fn=out.append)
+    # out.append works as the fake print. With session=None, run_chat makes a bare Session.
+    run_chat(provider, session, input_fn=fake_input(lines), output_fn=out.append)
     # Hand back the collected output for the test to inspect.
     return out
+
 
 
 # ---- run_chat() behavior ------------------------------------------------------------
@@ -187,8 +191,95 @@ def test_main_runs_with_mock_provider(monkeypatch, tmp_path):
     seen = []
     # Replace the real chat loop with a stub that just records the provider's name.
     # main() looks up run_chat in cli.py when it runs, so this swap takes effect.
-    monkeypatch.setattr("winter.cli.run_chat", lambda provider: seen.append(provider.name))
+    monkeypatch.setattr("winter.cli.run_chat", lambda provider, session: seen.append(provider.name))
     # main() must finish successfully with exit code 0...
     assert main() == 0
     # ...having passed a provider named "mock" into the loop.
     assert seen == ["mock"]
+    
+# ---- the Session in the loop (ADR 0012) ------------------------------------------------
+
+# Builds one 10-token text: 30 characters ("x" padding) that start with a tag.
+def ten_tokens(tag):
+    return tag + "x" * (30 - len(tag))
+
+
+def test_system_prompt_is_sent_first_to_the_model():
+    session = Session("rules")
+    p = MockProvider()
+    run(p, ["hi", "/exit"], session)
+    # The model sees the rules page first, then the user's message.
+    assert p.calls[0] == [Message("system", "rules"), Message("user", "hi")]
+
+
+def test_the_conversation_is_stored_in_the_session():
+    session = Session()
+    run(MockProvider(), ["hello", "/exit"], session)
+    # The Session now owns the exchange (not a hidden list inside run_chat).
+    assert session.messages_for_model() == [
+        Message("user", "hello"),
+        Message("assistant", "[mock] you said: hello"),
+    ]
+
+
+def test_a_failed_turn_is_crossed_out_of_the_session():
+    session = Session("rules")
+    run(MockProvider(error=ProviderError("down")), ["hi", "/exit"], session)
+    # Only the rules remain: the unanswered question was removed.
+    assert session.messages_for_model() == [Message("system", "rules")]
+
+
+def test_dropped_messages_are_announced_to_the_user():
+    # Budget 60 tokens, each message 10 tokens. After 3 turns the pad holds 60; the 4th user
+    # message makes 70, so trim() drops exchanges 1 and 2 (4 messages) and keeps q0/r0 and q3.
+    session = Session(budget_tokens=60)
+    p = MockProvider(replies=[ten_tokens(f"r{i}") for i in range(4)])
+    lines = [ten_tokens(f"q{i}") for i in range(4)] + ["/exit"]
+    out = run(p, lines, session)
+    note = "[note] The conversation got long, so 4 older messages were dropped from the model's memory."
+    # The user was told, exactly once...
+    assert out.count(note) == 1
+    # ...and the model really received the trimmed conversation: q0, r0, q3.
+    sent = p.calls[3]
+    assert [m.content[:2] for m in sent] == ["q0", "r0", "q3"]
+
+
+def test_no_note_is_shown_when_nothing_is_dropped():
+    out = run(MockProvider(), ["hello", "/exit"], Session(budget_tokens=1000))
+    assert not any(line.startswith("[note]") for line in out)
+
+
+def test_a_message_too_long_for_the_window_is_refused_and_the_loop_continues():
+    # Budget 5 tokens cannot hold a 10-token message.
+    session = Session(budget_tokens=5)
+    p = MockProvider()
+    out = run(p, [ten_tokens("q0"), "/exit"], session)
+    # The user is told what to do...
+    assert "[error] That message is too long for the model's context window. Please send a shorter one." in out
+    # ...the model was never called, the question was crossed out, and the loop said goodbye.
+    assert p.calls == []
+    assert session.messages_for_model() == []
+    assert out[-1] == "Goodbye."
+
+
+def test_main_builds_the_session_from_settings(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("LOCAL_AI_PROVIDER", "mock")
+    monkeypatch.setenv("LOCAL_AI_CONTEXT_TOKENS", "8192")
+    captured = {}
+
+    # A Session that records how main() created it, then behaves normally.
+    class RecordingSession(Session):
+        def __init__(self, system_prompt=None, budget_tokens=None):
+            captured.update(system_prompt=system_prompt, budget_tokens=budget_tokens)
+            super().__init__(system_prompt, budget_tokens)
+
+    monkeypatch.setattr("winter.cli.Session", RecordingSession)
+    # Stop before any real chat starts.
+    monkeypatch.setattr("winter.cli.run_chat", lambda provider, session: None)
+    assert main() == 0
+    # The assistant's rules come from the prompt file...
+    assert "W.I.N.T.E.R" in captured["system_prompt"]
+    # ...and the budget is the 8192 window minus the 512-token reply reserve.
+    assert captured["budget_tokens"] == 8192 - 512
+
