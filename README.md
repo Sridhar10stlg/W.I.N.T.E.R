@@ -8,12 +8,12 @@ W.I.N.T.E.R is a personal AI-assistant engineering project inspired by the idea 
 
 ## Project status
 
-**Stage:** Planning / foundation  
+**Stage:** Foundation built; a text-only CLI chats with a local model (Ollama) or a mock  
 **Maintainer:** Solo developer  
 **Initial language:** Python  
 **Repository visibility:** Private during early development
 
-Features listed in the roadmap are planned, not necessarily implemented. This README will be updated as working capabilities are added.
+Working today: configuration, a chat loop, a mock provider, and an Ollama adapter with timeouts, one retry for temporary failures and clear errors. Everything else listed in the roadmap is planned, not implemented. Progress is tracked in [`docs/PROGRESS.md`](docs/PROGRESS.md). This README will be updated as working capabilities are added.
 
 ## Vision
 
@@ -54,27 +54,34 @@ See [`PLAN.md`](PLAN.md) for the detailed architecture, phase deliverables, safe
 
 ## Getting started
 
-The initial repository may not yet have an executable application. Once the Python package and `pyproject.toml` are in place, the intended developer workflow is:
+Requires Python 3.11 or newer. The commands below are for Windows PowerShell.
 
-```bash
+```powershell
 # Clone your repository
 git clone <your-repository-url>
-cd winter-ai
+cd <repository-folder>
 
 # Create and activate a virtual environment
 python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 
-# macOS / Linux
-source .venv/bin/activate
+# Install the dependencies, then the package itself in editable mode
+pip install -r requirements.txt
+pip install -e .
 
-# Windows PowerShell
-# .\.venv\Scripts\Activate.ps1
+# Copy the example settings and edit your own copy (never commit .env)
+Copy-Item .env.example .env
 
-# Install dependencies after project configuration is added
-python -m pip install --upgrade pip
+# Run the tests
+pytest
+
+# Run the assistant with the fake model (nothing else to install)
+$env:LOCAL_AI_PROVIDER = "mock"
+python -m winter
+Remove-Item Env:LOCAL_AI_PROVIDER
 ```
 
-Follow the installation instructions added by the first implementation before trying to run the assistant. Do not put real API keys in source files.
+To chat with a real local model, install [Ollama](https://ollama.com), then pull a model (`ollama pull gemma3:1b`, or `gemma3:4b` for a laptop with plenty of RAM) and run `python -m winter`. In `.env`, `LOCAL_AI_MODEL_TIER=low` uses the small model and `high` uses the bigger one; `LOCAL_AI_TIMEOUT_SECONDS` sets how long to wait for an answer. Type `/exit` to quit. Do not put real API keys in source files.
 
 ## Configuration and secrets
 

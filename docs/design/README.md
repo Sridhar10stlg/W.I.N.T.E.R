@@ -39,7 +39,7 @@ It is written in architecture-mentoring sessions. No code lives here. When a dec
 
 ## Mentoring topics
 
-1. Provider boundary (**done**: ADRs 0008-0010, implemented in Blocks 2b-1 to 2b-4)
+1. Provider boundary (**done**: ADRs 0008-0011, implemented in Blocks 2b-1 to 2b-4 and Block 3)
 2. Conversation and state (**next**, due Month 2 Week 1)
 3. Orchestrator
 4. Tool system and permissions

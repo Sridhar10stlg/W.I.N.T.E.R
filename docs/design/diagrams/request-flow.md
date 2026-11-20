@@ -20,7 +20,7 @@ Exit 1 is not used by `main()`. Python itself uses it for an uncaught exception 
 sequenceDiagram
     participant U as User
     participant C as run_chat
-    participant P as RetryingProvider (wraps the mock today)
+    participant P as RetryingProvider (wraps Ollama or the mock)
     U->>C: line of text
     C->>C: history.append(Message("user", text))
     C->>P: generate(history)

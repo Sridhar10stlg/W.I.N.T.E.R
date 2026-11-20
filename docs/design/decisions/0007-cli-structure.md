@@ -47,7 +47,7 @@ From the Block 2 page: "No extra layers until needed"; "Tests need no keyboard, 
 
 - **Month 2 Week 1 (sessions and system prompt):** decide who owns history (mentoring topic 2).
 - **Month 4 (voice):** a second interface needs the same conversation logic.
-- **Month 1 Week 3:** the factory gets real branches; the "not implemented" `ProviderError` and its temporary test go away.
+- **Month 1 Week 3 (done 2026-11-19):** the factory got a real `ollama` branch. The "not implemented" case is now a `ProviderSetupError` that only OpenRouter still raises, and its temporary test uses OpenRouter. Both go away when the OpenRouter adapter exists.
 
 ## Related
 

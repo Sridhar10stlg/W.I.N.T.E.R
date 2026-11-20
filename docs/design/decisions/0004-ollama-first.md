@@ -1,6 +1,6 @@
 # 0004: Ollama first, running natively on Windows; OpenRouter second
 
-- **Status:** Accepted (retroactive)
+- **Status:** Accepted (retroactive). **Ollama adapter implemented** 2026-11-19 in Block 3 (see the [build page](../../Build/20261119_block3.md)); OpenRouter is still to do.
 - **Date:** 2026-10-19 (Ollama first); October 2026 (moved from WSL to native Windows on the Dynabook)
 - **Recorded:** 2026-10-26
 
@@ -45,7 +45,7 @@ Build the Ollama adapter first (Month 1 Week 3), then OpenRouter. Ollama runs na
 ## Consequences and trade-offs accepted
 
 - The old WSL Ollama still exists with its own models, and both use port 11434. If WSL starts first, W.I.N.T.E.R silently talks to the wrong server. Keep WSL stopped. The Week 3 adapter's "model not found" error is the first line of defence.
-- **Unverified:** gemma3 may not support tool calling in Ollama. Check with `ollama show gemma3:1b` (and `gemma3:4b` once pulled). If tools are not listed, Month 3 needs a different local model or OpenRouter.
+- **Verified 2026-10-26:** gemma3 does not support tool calling in Ollama (`ollama show` lists no `tools` capability for `gemma3:1b` or `gemma3:4b`). Month 3 needs a different local model or OpenRouter (open questions 7a and 8).
 
 ## What would make us revisit this
 

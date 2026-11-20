@@ -1,6 +1,6 @@
 # 0009: Provider errors: a small hierarchy grouped by what the caller can do
 
-- **Status:** Accepted. **Implemented** 2026-11-19 in Block 2b-2 (`2e70c3f`, `11e91d3`, `4f4fca3`). Adapter mappings (hand-off step 3) arrive with Block 3.
+- **Status:** Accepted. **Implemented** 2026-11-19 in Block 2b-2 (`2e70c3f`, `11e91d3`, `4f4fca3`). Adapter mappings (hand-off step 3) implemented 2026-11-19 in Block 3 (`ollama.py`; see the [build page](../../Build/20261119_block3.md)). The 404 mapping and a malformed `LOCAL_OLLAMA_URL` both raise `ProviderSetupError`.
 - **Date:** 2026-10-26
 - **Recorded:** 2026-10-26
 - **Supersedes:** the error part of [0006](0006-sync-str-return.md).
