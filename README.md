@@ -13,7 +13,7 @@ W.I.N.T.E.R is a personal AI-assistant engineering project inspired by the idea 
 **Initial language:** Python  
 **Repository visibility:** Private during early development
 
-Working today: configuration, a chat loop, a mock provider, and an Ollama adapter with timeouts, one retry for temporary failures and clear errors. Everything else listed in the roadmap is planned, not implemented. Progress is tracked in [`docs/PROGRESS.md`](docs/PROGRESS.md). This README will be updated as working capabilities are added.
+Working today: configuration, a chat loop with a conversation that has standing rules (a system prompt file) and a history limit that tells you when old messages are dropped, a mock provider, and an Ollama adapter with timeouts, one retry for temporary failures and clear errors. Everything else listed in the roadmap is planned, not implemented. Progress is tracked in [`docs/PROGRESS.md`](docs/PROGRESS.md). This README will be updated as working capabilities are added.
 
 ## Vision
 
