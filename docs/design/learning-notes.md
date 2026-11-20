@@ -132,3 +132,30 @@ Short, plain-language notes on design concepts, each tied to a real W.I.N.T.E.R 
 - **What:** a test that reads your shell, your `.env`, the network or the clock gives different results on different days.
 - **W.I.N.T.E.R example:** a leftover `LOCAL_AI_MODEL_TIER=high` in the shell failed a test. `tests/conftest.py` now clears every configuration variable before each test, built from `Settings` itself so new settings are covered automatically.
 - **Related habit:** count tests per file. A file that was never created never fails (the missing `test_system_prompt.py` showed up only because the total was 10 short).
+
+## One primitive, one convenience
+
+- **What:** when a new capability arrives (streaming), make it the one real implementation and keep the old call as a thin helper built on it. Callers don't break, and there is only one code path to get right.
+- **W.I.N.T.E.R example:** [ADR 0013](decisions/0013-streaming-measurement-and-logging.md): adapters implement `stream()`; `generate()` collects the pieces. Compare changing the single method (breaks every caller) and keeping two separate implementations (they drift apart).
+
+## Retry only when the failure is invisible
+
+- **What:** asking the model again is repeatable, but showing text is not undoable. A retry is safe only while nothing has been shown yet.
+- **W.I.N.T.E.R example:** retry a streamed answer only before the first piece arrives. After that, report the failure and keep the partial text, marked cut off. Retrying from the start would show the answer twice and double-charge a paid API.
+- **Self-check habit:** when two of your answers cannot both be the rule ("keep the partial" and "retry from the start"), one of them is wrong.
+
+## Data minimisation: a log is a second copy
+
+- **What:** the safest data to protect is data you never stored. A log outlives the chat, gets copied into bug reports and backups, and would defeat delete controls.
+- **W.I.N.T.E.R example:** logs hold events and numbers (model, durations, token counts, error types), never conversation text or secrets. Masking by pattern is only a safety net: it recognises keys, not names or diagnoses.
+- **Self-check habit:** before choosing the easiest option, ask "what is the worst thing this does to the user's data or experience?"
+
+## One recorder, two readers
+
+- **What:** if two places compute the same numbers, they will eventually disagree. Record once and let both read it.
+- **W.I.N.T.E.R example:** one turn record per answer feeds both `/stats` and the log.
+
+## Size the stop to the thing you stop
+
+- **What:** a control should match what you want to stop. A small stop for a small thing, a big stop for a big thing.
+- **W.I.N.T.E.R example:** Ctrl+C during an answer stops that answer and keeps the chat; Ctrl+C at the prompt quits the program. Quitting to cancel one answer would throw away the whole conversation.
