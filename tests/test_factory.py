@@ -46,8 +46,11 @@ def test_ollama_provider_is_built_from_settings_and_wrapped(monkeypatch):
 
     # A stand-in for OllamaProvider that remembers its arguments instead of connecting anywhere.
     class FakeOllama(MockProvider):
-        def __init__(self, base_url, model, timeout_seconds):
-            captured.update(base_url=base_url, model=model, timeout_seconds=timeout_seconds)
+        def __init__(self, base_url, model, timeout_seconds, context_tokens):
+            captured.update(
+                base_url=base_url, model=model,
+                timeout_seconds=timeout_seconds, context_tokens=context_tokens,
+            )
             super().__init__()
 
     # Swap the name the factory uses; monkeypatch undoes it after the test.
@@ -58,12 +61,18 @@ def test_ollama_provider_is_built_from_settings_and_wrapped(monkeypatch):
         LOCAL_AI_MODEL_TIER="high",
         LOCAL_OLLAMA_URL="http://example:1234",
         LOCAL_AI_TIMEOUT_SECONDS=7,
+        LOCAL_AI_CONTEXT_TOKENS=8192,
     )
     provider = build_provider(settings)
     # The CLI receives the wrapper...
     assert isinstance(provider, RetryingProvider)
-    # ...and the adapter got the address, the HIGH-tier model name, and the timeout from Settings.
-    assert captured == {"base_url": "http://example:1234", "model": "gemma3:4b", "timeout_seconds": 7}
+    # ...and the adapter got the address, the HIGH-tier model name, the timeout and the window.
+    assert captured == {
+        "base_url": "http://example:1234",
+        "model": "gemma3:4b",
+        "timeout_seconds": 7,
+        "context_tokens": 8192,
+    }
 
 
 def test_bad_ollama_url_is_a_setup_error_at_build_time():

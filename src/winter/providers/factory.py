@@ -36,6 +36,7 @@ def build_provider(settings: Settings) -> Provider:
             base_url=settings.ollama_url,
             model=settings.model,
             timeout_seconds=settings.timeout_seconds,
+            context_tokens=settings.context_tokens,
         )
     # "openrouter" is a valid setting but has no adapter yet. That is a SETUP problem,
     # not a model failure, so we raise the setup error.

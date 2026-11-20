@@ -102,19 +102,26 @@ class OllamaProvider(Provider):
         base_url: str,                              # where Ollama listens, e.g. http://localhost:11434
         model: str,                                 # which model to ask, e.g. gemma3:4b
         timeout_seconds: float,                     # how long to wait for an answer (from Settings)
+        context_tokens: int | None = None,          # window size to request; None = Ollama's own default
         client: httpx.Client | None = None,         # a ready-made HTTP client; tests pass a fake one
     ) -> None:
+        # A zero or negative window is nonsense: refuse it when the object is built.
+        if context_tokens is not None and context_tokens <= 0:
+            raise ValueError("The context window must be positive.")
         # Build the full address once. rstrip("/") avoids a double slash if the URL ends with "/".
         self._url = base_url.rstrip("/") + "/api/chat"
         # Remember which model to ask.
         self._model = model
         # Remember how long to wait.
         self._timeout = timeout_seconds
+        # Remember the window size we promise Ollama on every request (ADR 0012).
+        self._context_tokens = context_tokens
         # Use the client we were given, or make a real one. Reusing one client keeps the
         # connection open between questions instead of reconnecting every time.
         self._client = client if client is not None else httpx.Client()
         # The same address, cleaned for error messages.
         self._shown_url = _display_url(base_url)
+
    
 
     # Same signature as Provider.generate, so it can stand in for any provider.
@@ -125,6 +132,13 @@ class OllamaProvider(Provider):
             "messages": [{"role": m.role, "content": m.content} for m in messages],
             "stream": False,
         }
+        
+        # Tell Ollama the window size we planned for, so our trimming budget and the server's
+        # window are the SAME number (ADR 0012; verified by experiment: num_ctx is honored).
+        # When no size was given we send nothing and Ollama uses its own default.
+        if self._context_tokens is not None:
+            payload["options"] = {"num_ctx": self._context_tokens}
+       
 
         # Step 2: drive to Ollama. Each way the trip can fail gets its own card.
         # Order matters: specific first, general last (HTTPError is the parent of the others).

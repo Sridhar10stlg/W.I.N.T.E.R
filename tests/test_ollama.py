@@ -295,3 +295,41 @@ def test_wrapper_does_not_retry_a_missing_model():
         RetryingProvider(make_provider(handler)).generate(CONVO)
     # A setup problem is never retried (ADR 0010): one call only.
     assert len(calls) == 1
+
+
+# --- context window (ADR 0012) ----------------------------------------------------------
+
+def test_the_context_window_is_sent_to_ollama_as_num_ctx():
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, json=good_json())
+
+    # The window we plan for must reach the server, or the two numbers could disagree.
+    provider = OllamaProvider(
+        "http://localhost:11434", "gemma3:1b", 5, context_tokens=8192,
+        client=httpx.Client(transport=httpx.MockTransport(handler)),
+    )
+    provider.generate(CONVO)
+    import json
+    assert json.loads(seen[0].content)["options"] == {"num_ctx": 8192}
+
+
+def test_without_a_context_window_no_options_are_sent():
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, json=good_json())
+
+    # make_provider passes no context size: Ollama must be left to use its own default.
+    make_provider(handler).generate(CONVO)
+    import json
+    assert "options" not in json.loads(seen[0].content)
+
+
+@pytest.mark.parametrize("bad", [0, -1])
+def test_a_zero_or_negative_context_window_is_refused(bad):
+    with pytest.raises(ValueError, match="must be positive"):
+        OllamaProvider("http://localhost:11434", "gemma3:1b", 5, context_tokens=bad)
