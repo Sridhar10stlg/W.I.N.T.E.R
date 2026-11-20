@@ -93,3 +93,31 @@ Short, plain-language notes on design concepts, each tied to a real W.I.N.T.E.R 
 
 - **What:** error messages are output, so they follow the same rules as any output: no secrets, no untrusted raw data.
 - **Rules:** say what happened plus how to fix it; never print a raw server response; never print any part of a key (a prefix is still a secret); strip credentials from URLs.
+
+## Single source of truth: who owns shared state
+
+- **What:** a rule that must behave the same everywhere lives in one place. Copies drift apart, and a bug fix has to be made once per copy.
+- **W.I.N.T.E.R example:** [ADR 0012](decisions/0012-conversation-ownership-and-history-limit.md): one session object owns the conversation, not one list per interface (CLI, voice, web). Same idea as `RetryingProvider` for retries.
+- **Trap:** "simplest today" and "simplest overall" are different. Needed in 3 places later? Put it in 1 now, if it is cheap.
+
+## Build the simple version first; keep the powerful one as a planned upgrade
+
+- **What:** fix the real problem with the least machinery, and write the bigger idea down as a follow-up with a trigger.
+- **W.I.N.T.E.R example:** a long chat drops the oldest exchanges and says so (ADR 0012). Summarising is more powerful, but it adds a model call, can distort facts, and its output is untrusted. It is open question 15, not forgotten. Same for Jinja2 over `string.Template` (open question 16).
+
+## Invariants
+
+- **What:** a rule that must be true after every operation, so the data is always valid.
+- **W.I.N.T.E.R example:** the history is always whole question-and-answer pairs. Trimming drops pairs, never half of one. The rollback in `run_chat` (`history.pop()`) protects the same invariant.
+- **Priority order:** when space is short, decide in advance who wins (system prompt, newest message, first message, recent exchanges). Otherwise a huge item can crowd out the important ones.
+
+## Two numbers that must agree
+
+- **What:** when two parts of a system each hold a limit, one of them is a copy, and copies disagree.
+- **W.I.N.T.E.R example:** our trimming budget and Ollama's context window. One setting (`LOCAL_AI_CONTEXT_TOKENS`) drives both, so we cannot silently exceed what the server really reads.
+
+## Template engines run logic
+
+- **What:** a template engine does more than fill blanks; it can run conditions and loops. Untrusted text rendered inside a template can change what the template does.
+- **Rule:** templates receive only values we supply. Conversation text, web pages and model output are added as separate messages, never rendered into a template.
+- **W.I.N.T.E.R example:** the system prompt is a text file changed only by editing it (reviewed in git), never by a chat command or by model output.
