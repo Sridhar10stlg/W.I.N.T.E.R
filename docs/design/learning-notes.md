@@ -121,3 +121,14 @@ Short, plain-language notes on design concepts, each tied to a real W.I.N.T.E.R 
 - **What:** a template engine does more than fill blanks; it can run conditions and loops. Untrusted text rendered inside a template can change what the template does.
 - **Rule:** templates receive only values we supply. Conversation text, web pages and model output are added as separate messages, never rendered into a template.
 - **W.I.N.T.E.R example:** the system prompt is a text file changed only by editing it (reviewed in git), never by a chat command or by model output.
+
+## Measure before you build
+
+- **What:** turn "we believe" into "we measured" with a small throwaway experiment (a spike) before building on an assumption.
+- **W.I.N.T.E.R example:** the experiment on 2026-11-20 confirmed that Ollama drops old messages silently, honors `num_ctx`, and counts about 3.7 characters per token. It changed the plan: 3 characters per token instead of 4, and a reply reserve. A control round (a short chat) proved the test itself was fair.
+
+## Tests must not depend on the outside world
+
+- **What:** a test that reads your shell, your `.env`, the network or the clock gives different results on different days.
+- **W.I.N.T.E.R example:** a leftover `LOCAL_AI_MODEL_TIER=high` in the shell failed a test. `tests/conftest.py` now clears every configuration variable before each test, built from `Settings` itself so new settings are covered automatically.
+- **Related habit:** count tests per file. A file that was never created never fails (the missing `test_system_prompt.py` showed up only because the total was 10 short).

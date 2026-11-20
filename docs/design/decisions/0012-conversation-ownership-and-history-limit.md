@@ -1,6 +1,6 @@
 # 0012: Conversation ownership and the history limit
 
-- **Status:** Accepted
+- **Status:** Accepted. **Implemented** 2026-11-20 in Month 2 Week 1 (`8d7bef2`, `f1f67d8`, `fd0f29e`, `3f5f6ae`, `7c3ba5e`, `9140e3f`, `8ac11e5`, `b1b4143`, `fe9e804`); see the [build page](../../Build/20261120_month2_week1.md). Refinement 4 (the safety net) is deliberately not built.
 - **Date:** 2026-11-20
 - **Recorded:** 2026-11-20
 

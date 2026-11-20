@@ -36,12 +36,12 @@ It is written in architecture-mentoring sessions. No code lives here. When a dec
 | [0009](decisions/0009-provider-error-hierarchy.md) | Provider errors: small hierarchy grouped by caller action | Accepted, implemented (2b-2) | 2026-10-26 |
 | [0010](decisions/0010-timeouts-and-retries.md) | Timeouts and retries: one wrapper layer, never retry actions | Accepted, implemented (2b-3, 2b-4) | 2026-10-26 |
 | [0011](decisions/0011-httpx-for-http.md) | `httpx` as the HTTP library for model adapters | Accepted, implemented (Block 3) | 2026-11-19 |
-| [0012](decisions/0012-conversation-ownership-and-history-limit.md) | Conversation ownership (session object) and the history limit (drop oldest, tell the user) | Accepted, not yet implemented | 2026-11-20 |
+| [0012](decisions/0012-conversation-ownership-and-history-limit.md) | Conversation ownership (session object) and the history limit (drop oldest, tell the user) | Accepted, implemented (Month 2 Week 1) | 2026-11-20 |
 
 ## Mentoring topics
 
 1. Provider boundary (**done**: ADRs 0008-0011, implemented in Blocks 2b-1 to 2b-4 and Block 3)
-2. Conversation and state (**decided**: ADR 0012 on 2026-11-20; code due Month 2 Week 1)
+2. Conversation and state (**done**: ADR 0012, decided and implemented 2026-11-20)
 3. Orchestrator
 4. Tool system and permissions
 5. Memory
