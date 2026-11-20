@@ -371,7 +371,7 @@ W.I.N.T.E.R should become a dependable assistant that:
 
 ### Month 2 (Nov 18 - Dec 17): Sessions and tool foundations (Phases 1-2)
 **Goal:** multi-turn conversations and a tool registry.
-- [ ] **Week 1:** conversation/session handling, system prompt, and a history size limit so a long chat does not silently lose old messages (design open questions 6 and 12).
+- [x] **Week 1:** conversation/session handling, system prompt, and a history size limit so a long chat does not silently lose old messages (design open questions 6 and 12). Done 2026-11-20 ([ADR 0012](docs/design/decisions/0012-conversation-ownership-and-history-limit.md), [build page](docs/Build/20261120_month2_week1.md)): `Session`, `trim()` with a visible note, `LOCAL_AI_CONTEXT_TOKENS` sent to Ollama as `num_ctx`, and a system prompt file.
 - [ ] **Week 2:** streaming output and cost/latency measurements.
 - [ ] **Week 3:** tool registry with names, descriptions, typed input schemas, validation.
 - [ ] **Week 4:** first low-risk tools (calculator, date/time) with valid, invalid, and unauthorized call tests.

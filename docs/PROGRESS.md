@@ -8,7 +8,7 @@ Master index for the build history. Each block of work has its own detailed page
 
 ## Current position
 
-**Next up:** Month 2 Week 1: conversation/session handling, system prompt, and a history size limit (design open questions 6 and 12). Month 1 is complete: Blocks 2b-1 to 2b-4 and Block 3 are done and verified (94 tests passed on the Dynabook). W.I.N.T.E.R now has a real local model: `python -m winter` chats with `gemma3:4b` through Ollama. Still to do from the plan: the OpenRouter adapter (must work before Month 3 Week 4) and logging (Month 2 Week 2).
+**Next up:** Month 2 Week 2: streaming output and cost/latency measurements, plus structured logging with secret redaction (moved here from Month 1). Month 2 Week 1 is done and verified (180 tests passed on the Dynabook): a `Session` owns the conversation, a system prompt file sets the rules, a long chat is trimmed with a visible note, and `LOCAL_AI_CONTEXT_TOKENS` is sent to Ollama as `num_ctx`. Month 1 (Blocks 2b-1 to 2b-4 and Block 3) is complete: `python -m winter` chats with `gemma3:4b` through Ollama. Still to do from the plan: the OpenRouter adapter (must work before Month 3 Week 4).
 
 Native Windows Ollama is installed on the Dynabook (v0.40.11) with `gemma3:1b` and `gemma3:4b` pulled. Neither lists a `tools` capability, which matters for Month 3 (see [plan.md](../plan.md)).
 
@@ -25,6 +25,7 @@ Native Windows Ollama is installed on the Dynabook (v0.40.11) with `gemma3:1b` a
 | 1 | 2 | 2b-4 | `RetryingProvider`, wired in `build_provider` ([ADR 0010](design/decisions/0010-timeouts-and-retries.md)) | Done | [20261119_block2b.md](Build/20261119_block2b.md) |
 | 1 | 3 | 3 | Ollama adapter with clear errors ([ADR 0011](design/decisions/0011-httpx-for-http.md)) | Done | [20261119_block3.md](Build/20261119_block3.md) |
 | 1 | 4 | 4 | Logging with secret redaction, failure tests | Moved to Month 2 Week 2 | pending |
+| 2 | 1 | M2W1 | `Session`, system prompt, history limit with visible note, `num_ctx` ([ADR 0012](design/decisions/0012-conversation-ownership-and-history-limit.md)) | Done | [20261120_month2_week1.md](Build/20261120_month2_week1.md) |
 
 ## Laptops
 
@@ -39,6 +40,7 @@ Native Windows Ollama is installed on the Dynabook (v0.40.11) with `gemma3:1b` a
 - **Branches:** `dev` is the day-to-day working branch. `main` is for releases only. (`master` is deleted.)
 - **2026-11-18, schedule:** v1.0 deadline moved from 2027-10-19 to 2027-11-09 (Month 1 slipped ~3 weeks). Order: 2b-1 → 2b-4 → Ollama adapter (Block 3); 2b-1 to 2b-4 finished 2026-11-19, so the slip did not grow. Logging moves to Month 2 Week 2; OpenRouter must work before Month 3 Week 4.
 - **2026-11-19, HTTP library:** `httpx` for the Ollama (and later OpenRouter) adapter. Offline tests with `MockTransport`, clear timeout errors, can stream later. Details on the Block 3 build page.
+- **2026-11-20, conversation design:** a `Session` object owns the conversation; a long chat drops the oldest whole exchanges and tells the user; the system prompt is a plain text file (Jinja2 later); one setting, `LOCAL_AI_CONTEXT_TOKENS`, drives both our budget and Ollama's `num_ctx`. Month 2 Week 1 took one day, so the schedule did not slip further.
 
 ## Open questions
 - Tracked in [docs/design/open-questions.md](design/open-questions.md) (design questions, each with the plan month that should reopen it).
