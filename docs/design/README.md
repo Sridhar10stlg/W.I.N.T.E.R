@@ -37,6 +37,7 @@ It is written in architecture-mentoring sessions. No code lives here. When a dec
 | [0010](decisions/0010-timeouts-and-retries.md) | Timeouts and retries: one wrapper layer, never retry actions | Accepted, implemented (2b-3, 2b-4) | 2026-10-26 |
 | [0011](decisions/0011-httpx-for-http.md) | `httpx` as the HTTP library for model adapters | Accepted, implemented (Block 3) | 2026-11-19 |
 | [0012](decisions/0012-conversation-ownership-and-history-limit.md) | Conversation ownership (session object) and the history limit (drop oldest, tell the user) | Accepted, implemented (Month 2 Week 1) | 2026-11-20 |
+| [0013](decisions/0013-streaming-measurement-and-logging.md) | Streaming (`stream()` primitive), one turn record, logs with events and numbers only | Accepted, not yet implemented | 2026-11-20 |
 
 ## Mentoring topics
 
@@ -46,5 +47,5 @@ It is written in architecture-mentoring sessions. No code lives here. When a dec
 4. Tool system and permissions
 5. Memory
 6. Interfaces and process model
-7. Observability and cost
+7. Observability and cost (**decided for Month 2 Week 2**: ADR 0013 on 2026-11-20; code due Month 2 Week 2)
 8. Config and deployment

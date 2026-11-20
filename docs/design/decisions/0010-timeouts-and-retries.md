@@ -1,6 +1,6 @@
 # 0010: Timeouts and retries: one wrapper layer, never retry actions
 
-- **Status:** Accepted. **Implemented** 2026-11-19 in Blocks 2b-3 and 2b-4 (`a17c70f`, `dbad83b`): `LOCAL_AI_TIMEOUT_SECONDS` (default 120, range (0, 600]) and `RetryingProvider`, added only in `build_provider`. Adapters passing the timeout to HTTP (hand-off step 2) arrive with Block 3.
+- **Status:** Accepted. **Implemented** 2026-11-19 in Blocks 2b-3 and 2b-4 (`a17c70f`, `dbad83b`): `LOCAL_AI_TIMEOUT_SECONDS` (default 120, range (0, 600]) and `RetryingProvider`, added only in `build_provider`. Adapters passing the timeout to HTTP (hand-off step 2) implemented in Block 3. **Retry rule for streamed answers refined by [0013](0013-streaming-measurement-and-logging.md):** retry only a failure that happens before the first piece.
 - **Date:** 2026-10-26
 - **Recorded:** 2026-10-26
 
@@ -38,7 +38,7 @@ Sridhar chose the wrapper so the rule lives in one place. One layer avoids ampli
 ## What would make us revisit this
 
 - Retries prove too few or too many in real use (measure in Month 2).
-- Streaming (Month 2): a failure halfway through a reply cannot simply be retried.
+- Streaming (Month 2): a failure halfway through a reply cannot simply be retried. Decided in [0013](0013-streaming-measurement-and-logging.md): retry only before the first piece.
 
 ## Related
 
