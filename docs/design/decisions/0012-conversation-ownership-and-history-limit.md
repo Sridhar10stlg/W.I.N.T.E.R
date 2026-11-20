@@ -50,7 +50,7 @@ Smaller decisions recorded alongside (cheap to change, so no separate ADR):
 
 - **System prompt** is a plain text file in the repo (for example `prompts/system.txt`), read at startup. A blank is filled with the standard library's `string.Template`, only with values we supply. It changes only by editing the file: not by a chat command, and never by model output. Jinja2 waits until a prompt needs logic (open question 16).
 - **Size** is a character estimate (about 4 characters per token) with a safety margin, calibrated against the real token counts in `Reply.usage`.
-- **Window setting:** a new `LOCAL_AI_CONTEXT_TOKENS` (default 4096) drives our budget, and the Ollama adapter sends the same number as `num_ctx`, so our budget and the server's window cannot disagree. (Assumes `/api/chat` honors `options.num_ctx`; verified in the first experiment.)
+- **Window setting:** a new `LOCAL_AI_CONTEXT_TOKENS` (default 4096) drives our budget, and the Ollama adapter sends the same number as `num_ctx`, so our budget and the server's window cannot disagree. (`/api/chat` honors `options.num_ctx`: verified by experiment (a), see the update section below.)
 - **Measure before building:** first run an experiment to see what Ollama really does past 4096 tokens.
 
 ## Why
@@ -76,13 +76,37 @@ Smaller decisions recorded alongside (cheap to change, so no separate ADR):
 - A second conversation at once (web users) makes one global session wrong.
 - Summarising becomes affordable after the Month 2 Week 2 cost and latency data.
 
+## Update after experiment (a), 2026-11-20
+
+Measured on the Dynabook (`gemma3:1b`, Ollama 0.40.11, CPU only): a first message hides a code word, 110 filler exchanges follow, then the question.
+
+| Round | Tokens Ollama read | Result |
+|---|---|---|
+| Short chat (control) | 56 | Code word recalled. |
+| Long chat, default window | 4,057 of 7,426 sent | **Code word forgotten; answer confidently wrong; HTTP 200, `done_reason: stop`, no warning.** |
+| Long chat, `num_ctx: 8192` | 7,426 | Code word recalled; `ollama ps` shows CONTEXT 8192. |
+
+Confirmed facts:
+
+- **Silent truncation is real.** About 45% of the chat was dropped from the front, with nothing in the response to say so. This is the failure this ADR exists to prevent.
+- **`options.num_ctx` is honored.** The decision to send our budget as `num_ctx` stands.
+- **The 4-characters-per-token estimate is too optimistic.** 27,640 characters came to 7,426 real tokens (3.7 characters per token, including per-message overhead). The estimate said 6,910, an undercount of about 7%: the dangerous direction, because we would believe a chat fits when it does not.
+- **Cost grows with history.** Reading 4,057 tokens took about 22 s; 7,426 tokens about 45 s (including reloading the model at the new window), on the 1b model. The 4b model will be slower.
+
+Refinements to the decisions above (confirmed by Sridhar 2026-11-20; number 4 is only recorded for later, not part of Month 2 Week 1 unless the estimate proves unreliable):
+
+1. **Estimate with 3 characters per token** (it overestimates on purpose), instead of 4. Re-check against `Reply.usage` in Month 2 Week 2.
+2. **Reserve room for the reply.** The window holds the prompt and the answer, so the prompt budget is `context_tokens` minus a reply reserve (start with 512, tunable).
+3. **Trim in chunks.** When trimming triggers, trim down to about 75% of the budget instead of dropping one pair every turn. Believed, not verified: Ollama reuses the already-read start of the conversation between turns (`prompt_eval_cached_count`), and removing messages from the front invalidates that reuse, so frequent small trims would make every turn re-read the whole history.
+4. **Optional safety net, later:** compare the tokens Ollama says it read (`prompt_eval_count` plus `prompt_eval_cached_count`) with what we sent. If it read far less, show the same visible "forgot early messages" note. This catches errors in our estimate. It needs a new optional field on `Reply` (allowed by [ADR 0008](0008-reply-object.md)). Not built until the session and trimming work.
+
 ## Related
 
 - ADRs: [0007](0007-cli-structure.md), [0008](0008-reply-object.md) (`Usage` is the calibration source), [0010](0010-timeouts-and-retries.md).
 - Open questions: 6 (closed here), 12 (partly decided), 15 and 16 (new).
 - plan.md: section 13 Month 2 Week 1.
 - Implementation hand-off (code session), in this order:
-  1. Experiment: a long chat with a fact at the start; observe what Ollama does past 4096 tokens, and whether `options.num_ctx` is honored.
+  1. Experiment: a long chat with a fact at the start; observe what Ollama does past 4096 tokens, and whether `options.num_ctx` is honored. **Done 2026-11-20** (see the update section).
   2. A `Session` object (messages plus system prompt) with tests.
   3. `prompts/system.txt`, its loader, and a test that no conversation text reaches the template.
   4. Trimming with the priority order, whole pairs, and a visible notice; tests for each rule.
