@@ -137,7 +137,7 @@ def main() -> int:
         # Exit code 2 = setup problem: fix your configuration.
         return 2
 
-    # Step 2: turn the settings into a provider object (mock now, Ollama in Week 3).
+    # Step 2: turn the settings into a provider object (mock or Ollama).
     try:
         provider = build_provider(settings)
     # A SETUP problem: the chosen provider can't be built (no adapter yet; later, a missing
