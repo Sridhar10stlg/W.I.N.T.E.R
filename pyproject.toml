@@ -19,6 +19,11 @@ winter = "winter.cli:main"
 # Look for packages inside src/.
 where = ["src"]
 
+# Include the prompt text file when the package is built or installed.
+[tool.setuptools.package-data]
+# For the package "winter", include every .txt file in its prompts folder.
+winter = ["prompts/*.txt"]
+
 # Settings for pytest.
 [tool.pytest.ini_options]
 # Where the tests live.
